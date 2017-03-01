@@ -1,12 +1,25 @@
 // @flow
 
 const fs = require('fs')
+const os = require('os')
+const path = require('path')
 
+/**
+ * @typedef Machines
+ * @type Object
+ * @prop {string} host
+ * @prop {string} password
+ */
 type Machine = {
+  [prop: string]: string,
   host: string,
-  password: string
+  password?: string
 }
 
+/**
+ * @typedef Machines
+ * @type {Object.<string, Machine}
+ */
 type Machines = {[name: string]: Machine}
 
 function lex (body: string): {token: string, line: number}[] {
@@ -27,7 +40,7 @@ function lex (body: string): {token: string, line: number}[] {
 }
 
 function parse (body: string): Machines {
-  const machines = {}
+  const machines: Machines = {}
   const tokens = lex(body)
   let host
   let prop
@@ -39,6 +52,7 @@ function parse (body: string): Machines {
         machines[host] = {host}
         break
       default:
+        if (!host) throw new Error(`Invalid token ${prop.token} on line ${prop.line}`)
         machines[host][prop.token] = tokens.shift().token
     }
   }
@@ -46,7 +60,19 @@ function parse (body: string): Machines {
   return machines
 }
 
+/**
+ * parses a netrc file
+ */
 class Netrc {
+  /**
+   * gets the machines on the default netrc file
+   */
+  static machines (): Machines {
+    const f = os.platform() === 'win32' ? '_netrc' : '.netrc'
+    const netrc = new Netrc(path.join(os.homedir(), f))
+    return netrc.machines
+  }
+
   constructor (file: string) {
     this.machines = parse(fs.readFileSync(file, 'utf8'))
   }
