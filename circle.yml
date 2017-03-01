@@ -1,0 +1,35 @@
+---
+version: 2
+executorType: docker
+containerInfo:
+  - image: dickeyxxx/cli-engine@sha256:4b54ba455ea8d9675b4dc501e874d83a1f6c0bf0aee7427ee55217e2de1d150e
+stages:
+  build:
+    workDir: ~/node-netrc-parser
+    environment:
+      - CIRCLE_PROJECT_USERNAME: dickeyxxx
+      - CIRCLE_PROJECT_REPONAME: node-netrc-parser
+    steps:
+      - type: checkout
+      - type: cache-restore
+        key: node-netrc-parser-{{checksum "package.json"}}
+      - type: shell
+        command: |
+          set -exu
+          yarn
+          ./node_modules/.bin/jest --coverage
+          ./node_modules/.bin/flow check
+          ./node_modules/.bin/standard
+          bash <(curl -s https://codecov.io/bash)
+      - type: cache-save
+        key: node-netrc-parser-{{checksum "package.json"}}
+        paths:
+          - /usr/local/share/.cache/yarn
+          - ~/node-netrc-parser/node_modules
+      - type: deploy
+        shell: /bin/bash
+        command: |
+          set -exu
+          if [ "${CIRCLE_BRANCH}" == "master" ]; then
+            cd example && npm run release beta
+          fi
