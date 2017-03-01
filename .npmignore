@@ -1,3 +1,5 @@
+.babelrc
+.flowconfig
 .npmignore
 flow-typed
 src
