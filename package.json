@@ -16,6 +16,7 @@
     "flow-bin": "0.40.0",
     "fs-extra": "2.0.0",
     "jest": "19.0.2",
+    "jest-junit": "1.2.0",
     "rimraf": "2.6.1",
     "standard": "9.0.0"
   },
