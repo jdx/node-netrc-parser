@@ -15,7 +15,8 @@
     "documentation": "4.0.0-beta.18",
     "flow-bin": "0.40.0",
     "fs-extra": "2.0.0",
-    "jest": "19.0.2"
+    "jest": "19.0.2",
+    "rimraf": "2.6.1"
   },
   "homepage": "https://github.com/dickeyxxx/node-netrc-parser",
   "keywords": [
