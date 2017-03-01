@@ -6,7 +6,7 @@
 
 ## Machine
 
-[src/netrc.js:13-17](https://github.com/dickeyxxx/node-netrc-parser/blob/c442d50bd67454e6548ba95d43ac00aa2f4347bb/src/netrc.js#L13-L17 "Source code on GitHub")
+[src/netrc.js:13-17](https://github.com/dickeyxxx/node-netrc-parser/blob/f8791670f1febd3dd5980657dc086326e1bc6492/src/netrc.js#L13-L17 "Source code on GitHub")
 
 Type: {host: [string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String), password: [string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)?}
 
@@ -17,19 +17,19 @@ Type: {host: [string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Re
 
 ## Machines
 
-[src/netrc.js:23-23](https://github.com/dickeyxxx/node-netrc-parser/blob/c442d50bd67454e6548ba95d43ac00aa2f4347bb/src/netrc.js#L23-L23 "Source code on GitHub")
+[src/netrc.js:23-23](https://github.com/dickeyxxx/node-netrc-parser/blob/f8791670f1febd3dd5980657dc086326e1bc6492/src/netrc.js#L23-L23 "Source code on GitHub")
 
 Type: {}
 
 ## Netrc
 
-[src/netrc.js:66-81](https://github.com/dickeyxxx/node-netrc-parser/blob/c442d50bd67454e6548ba95d43ac00aa2f4347bb/src/netrc.js#L66-L81 "Source code on GitHub")
+[src/netrc.js:66-81](https://github.com/dickeyxxx/node-netrc-parser/blob/f8791670f1febd3dd5980657dc086326e1bc6492/src/netrc.js#L66-L81 "Source code on GitHub")
 
 parses a netrc file
 
 ### machines
 
-[src/netrc.js:70-74](https://github.com/dickeyxxx/node-netrc-parser/blob/c442d50bd67454e6548ba95d43ac00aa2f4347bb/src/netrc.js#L70-L74 "Source code on GitHub")
+[src/netrc.js:70-74](https://github.com/dickeyxxx/node-netrc-parser/blob/f8791670f1febd3dd5980657dc086326e1bc6492/src/netrc.js#L70-L74 "Source code on GitHub")
 
 gets the machines on the default netrc file
 
