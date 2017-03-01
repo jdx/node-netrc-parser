@@ -13,6 +13,7 @@ const path = require('path')
 type Machine = {
   [prop: string]: string,
   host: string,
+  login?: string,
   password?: string
 }
 
@@ -56,7 +57,6 @@ function parse (body: string): Machines {
         machines[host][prop.token] = tokens.shift().token
     }
   }
-  console.dir(machines)
   return machines
 }
 

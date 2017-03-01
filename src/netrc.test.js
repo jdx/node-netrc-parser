@@ -16,5 +16,9 @@ test('it load the netrc file', () => {
   password myapikey`)
   const netrc = new Netrc(f)
 
-  expect(netrc.machines['api.dickeyxxx.com'].password).toEqual('myapikey')
+  expect(netrc.machines['api.dickeyxxx.com']).toEqual({
+    host: 'api.dickeyxxx.com',
+    login: 'jeff@foo.com',
+    password: 'myapikey'
+  })
 })
