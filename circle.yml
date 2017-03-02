@@ -17,6 +17,7 @@ stages:
         command: |
           set -exu
           yarn
+          gpg --import gpg.key
           JEST_JUNIT_OUTPUT=/tmp/test-results/jest/junit.xml ./node_modules/.bin/jest --coverage --testResultsProcessor jest-junit
           ./node_modules/.bin/flow check
           ./node_modules/.bin/standard
