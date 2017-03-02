@@ -28,10 +28,3 @@ stages:
         paths:
           - /usr/local/share/.cache/yarn
           - ~/node-netrc-parser/node_modules
-      - type: deploy
-        shell: /bin/bash
-        command: |
-          set -exu
-          if [ "${CIRCLE_BRANCH}" == "master" ]; then
-            cd example && npm run release beta
-          fi
