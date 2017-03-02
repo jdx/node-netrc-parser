@@ -29,7 +29,7 @@ class Netrc {
   /**
    * gets the machines on the default netrc file
    */
-  static machines (): Machines {
+  static get machines (): Machines {
     const f = os.platform() === 'win32' ? '_netrc' : '.netrc'
     const netrc = new Netrc(path.join(os.homedir(), f))
     return netrc.machines
