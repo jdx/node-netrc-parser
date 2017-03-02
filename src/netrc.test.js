@@ -9,6 +9,10 @@ const Netrc = require('./netrc')
 
 fs.mkdirpSync('tmp')
 
+test('can read system netrc', () => {
+  expect(Netrc.machines).toBeTruthy()
+})
+
 test('bad default order', () => {
   const f = `tmp/netrc`
   fs.writeFileSync(f, `# I am a comment

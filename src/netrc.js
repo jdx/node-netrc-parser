@@ -49,7 +49,7 @@ class Netrc {
 
   _decrypt (file: string): string {
     const {spawnSync} = require('child_process')
-    const {stdout, status} = spawnSync('gpg', ['--batch', '--decrypt', file], {stdio: [0, null, 2], encoding: 'utf8'})
+    const {stdout, status} = spawnSync('gpg', ['--batch', '--quiet', '--decrypt', file], {stdio: [0, null, 2], encoding: 'utf8'})
     if (status !== 0) throw new Error(`gpg exited with code ${status}`)
     return (stdout: any)
   }
