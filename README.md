@@ -9,30 +9,30 @@
 
 ## Machine
 
-[src/netrc.js:13-17](https://github.com/dickeyxxx/node-netrc-parser/blob/f8791670f1febd3dd5980657dc086326e1bc6492/src/netrc.js#L13-L17 "Source code on GitHub")
+[src/netrc.js:13-17](https://github.com/dickeyxxx/node-netrc-parser/blob/77e71fd75fe9c5c47305ddb5fc7c22a6904f703b/src/netrc.js#L13-L17 "Source code on GitHub")
 
-Type: {host: [string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String), password: [string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)?}
+Type: {login: [string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)?, password: [string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)?}
 
 **Properties**
 
--   `host` **[string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** 
+-   `login` **[string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** 
 -   `password` **[string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** 
 
 ## Machines
 
-[src/netrc.js:23-23](https://github.com/dickeyxxx/node-netrc-parser/blob/f8791670f1febd3dd5980657dc086326e1bc6492/src/netrc.js#L23-L23 "Source code on GitHub")
+[src/netrc.js:23-23](https://github.com/dickeyxxx/node-netrc-parser/blob/77e71fd75fe9c5c47305ddb5fc7c22a6904f703b/src/netrc.js#L23-L23 "Source code on GitHub")
 
 Type: {}
 
 ## Netrc
 
-[src/netrc.js:66-81](https://github.com/dickeyxxx/node-netrc-parser/blob/f8791670f1febd3dd5980657dc086326e1bc6492/src/netrc.js#L66-L81 "Source code on GitHub")
+[src/netrc.js:28-99](https://github.com/dickeyxxx/node-netrc-parser/blob/77e71fd75fe9c5c47305ddb5fc7c22a6904f703b/src/netrc.js#L28-L99 "Source code on GitHub")
 
 parses a netrc file
 
 ### machines
 
-[src/netrc.js:70-74](https://github.com/dickeyxxx/node-netrc-parser/blob/f8791670f1febd3dd5980657dc086326e1bc6492/src/netrc.js#L70-L74 "Source code on GitHub")
+[src/netrc.js:32-36](https://github.com/dickeyxxx/node-netrc-parser/blob/77e71fd75fe9c5c47305ddb5fc7c22a6904f703b/src/netrc.js#L32-L36 "Source code on GitHub")
 
 gets the machines on the default netrc file
 
