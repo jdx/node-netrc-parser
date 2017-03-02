@@ -39,7 +39,8 @@
   "standard": {
     "parser": "babel-eslint",
     "ignore": [
-      "lib"
+      "lib",
+      "flow-typed"
     ]
   }
 }
