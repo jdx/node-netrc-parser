@@ -2,6 +2,7 @@
 .flowconfig
 .npmignore
 flow-typed
+gpg.key
 src
 tmp
 yarn.lock
