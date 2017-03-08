@@ -144,6 +144,7 @@ function machinesProxy (content: (Machine | Token)[]) {
   function addNewMachine (host) {
     let machine = machineProxy({
       type: 'machine',
+      value: host,
       _tokens: [
         {type: 'machine', value: host, content: `machine ${host}`},
         {type: 'whitespace', content: '\n'}
@@ -161,6 +162,16 @@ function machinesProxy (content: (Machine | Token)[]) {
     set: (machines, host, value) => {
       if (!machines[host]) machines[host] = addNewMachine(host)
       machines[host] = machineProxy(value)
+      return true
+    },
+    deleteProperty: (machines, host) => {
+      if (!machines[host]) return false
+      delete machines[host]
+      for (let i = 0; i < content.length; i++) {
+        if (content[i].type === 'machine' && content[i].value === host) {
+          content.splice(i, 1)
+        }
+      }
       return true
     }
   })
