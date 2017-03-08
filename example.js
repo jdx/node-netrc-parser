@@ -1,0 +1,6 @@
+const Netrc = require('./src/netrc')
+const netrc = new Netrc('./example')
+console.dir(netrc)
+console.dir(netrc.machines)
+console.dir(netrc.machines['api.foo.com'])
+console.dir(netrc.machines['api.foo.com'].login)
