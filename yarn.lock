@@ -1611,9 +1611,9 @@ eslint-config-standard-jsx@3.3.0:
   version "3.3.0"
   resolved "https://registry.yarnpkg.com/eslint-config-standard-jsx/-/eslint-config-standard-jsx-3.3.0.tgz#cab0801a15a360bf63facb97ab22fbdd88d8a5e0"
 
-eslint-config-standard@7.0.0:
-  version "7.0.0"
-  resolved "https://registry.yarnpkg.com/eslint-config-standard/-/eslint-config-standard-7.0.0.tgz#4f161bc65695e4bc61331c55b9eeaca458cd99c6"
+eslint-config-standard@7.0.1:
+  version "7.0.1"
+  resolved "https://registry.yarnpkg.com/eslint-config-standard/-/eslint-config-standard-7.0.1.tgz#6cec96084de9ac862c33ccb953d13a7c59872342"
 
 eslint-plugin-promise@~3.4.0:
   version "3.4.2"
@@ -2650,9 +2650,9 @@ jest-jasmine2@^19.0.2:
     jest-message-util "^19.0.0"
     jest-snapshot "^19.0.2"
 
-jest-junit@1.2.0:
-  version "1.2.0"
-  resolved "https://registry.yarnpkg.com/jest-junit/-/jest-junit-1.2.0.tgz#5894bab45a5a13a7e1380cc7c63e7aae260064f4"
+jest-junit@1.3.0:
+  version "1.3.0"
+  resolved "https://registry.yarnpkg.com/jest-junit/-/jest-junit-1.3.0.tgz#e0c792a44f0adbfaa912bda586d5542a0b562fb9"
   dependencies:
     mkdirp "^0.5.1"
     xml "^1.0.1"
@@ -3965,12 +3965,12 @@ standard-engine@~5.4.0:
     minimist "^1.1.0"
     pkg-conf "^2.0.0"
 
-standard@9.0.0:
-  version "9.0.0"
-  resolved "https://registry.yarnpkg.com/standard/-/standard-9.0.0.tgz#58b2acad4dc33823a7477568033c973fc5b6a995"
+standard@9.0.1:
+  version "9.0.1"
+  resolved "https://registry.yarnpkg.com/standard/-/standard-9.0.1.tgz#c053e9009bb1a8b4c6b03bf12df4784185bb5899"
   dependencies:
     eslint "~3.15.0"
-    eslint-config-standard "7.0.0"
+    eslint-config-standard "7.0.1"
     eslint-config-standard-jsx "3.3.0"
     eslint-plugin-promise "~3.4.0"
     eslint-plugin-react "~6.9.0"

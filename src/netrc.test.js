@@ -138,7 +138,7 @@ test('invalid', () => {
   } catch (err) { expect(err.message).toContain('Unexpected character during netrc parsing') }
 })
 
-test('saving', () => {
+test.only('saving', () => {
   const f = `tmp/netrc`
   fs.writeFileSync(f, `# I am a comment
 machine mail.google.com

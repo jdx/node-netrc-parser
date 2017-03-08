@@ -192,7 +192,7 @@ class Netrc {
           return t.content
       }
     }).join('')
-    fs.writeFileSync(this.file, body)
+    fs.writeFileSync(this.file, body, {mode: 0o600})
   }
 
   _parse () {
