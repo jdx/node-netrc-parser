@@ -166,6 +166,8 @@ default
   netrc.machines['mail.google.com'].account = 'justanaccount'
   netrc.machines['ray'].login = 'demo2'
   netrc.machines['ray'].account = 'newaccount'
+  netrc.machines['new'].login = 'myuser'
+  netrc.machines['new'].password = 'mypass'
   netrc.save()
 
   expect(fs.readFileSync(f, 'utf8')).toEqual(`# I am a comment
@@ -189,5 +191,8 @@ machine weirdlogin login uname password pass#pass
 default
   login anonymous
   password joe@example.com
+machine new
+  password mypass
+  login myuser
 `)
 })

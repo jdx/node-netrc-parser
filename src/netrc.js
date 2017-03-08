@@ -45,7 +45,7 @@ type Machine = {
   login?: string,
   account?: string,
   password?: string,
-  _tokens?: Token[]
+  _tokens: Token[]
 }
 
 type Machines = {
@@ -68,7 +68,14 @@ function readFile (file: string): string {
   }
 
   if (path.extname(file) === '.gpg') return decryptFile(file)
-  else return fs.readFileSync(file, 'utf8')
+  else {
+    try {
+      return fs.readFileSync(file, 'utf8')
+    } catch (err) {
+      if (err.code !== 'ENOENT') throw err
+      return ''
+    }
+  }
 }
 
 function lex (body: string): Token[] {
@@ -109,7 +116,7 @@ ${body}`)
 }
 
 function machineProxy (machine: Machine) {
-  let tokens = machine._tokens = machine._tokens || []
+  let tokens = machine._tokens
   const props = (): PropToken[] => (tokens.filter(t => t.type === 'prop'): any)
   for (let prop of props()) machine[prop.name] = prop.value
   return new Proxy(machine, {
@@ -119,7 +126,8 @@ function machineProxy (machine: Machine) {
       if (prop) prop.value = value
       else {
         let lastPropIdx = findIndex(tokens, t => t.type === 'prop')
-        tokens.splice(lastPropIdx, 0, tokens[lastPropIdx - 1]) // insert whitespace
+        let whitespace = lastPropIdx === -1 ? {type: 'whitespace', content: '\n  '} : tokens[lastPropIdx - 1]
+        tokens.splice(lastPropIdx, 0, whitespace) // insert whitespace
         tokens.splice(lastPropIdx, 0, {type: 'prop', name, value})
       }
       return true
@@ -127,8 +135,23 @@ function machineProxy (machine: Machine) {
   })
 }
 
-function machinesProxy () {
+function machinesProxy (content: (Machine | Token)[]) {
+  function addNewMachine (host) {
+    let machine = machineProxy({
+      type: 'machine',
+      _tokens: [
+        {type: 'machine', value: host, content: `machine ${host}`},
+        {type: 'whitespace', content: '\n'}
+      ]
+    })
+    content.push(machine)
+    return machine
+  }
   return new Proxy({}, {
+    get: (machines, host) => {
+      if (!machines[host]) machines[host] = addNewMachine(host)
+      return machines[host]
+    },
     set: (machines, host, value) => {
       machines[host] = machineProxy(value)
       return true
@@ -159,15 +182,17 @@ class Netrc {
 
   static get home (): Netrc {
     if (this._home) return this._home
-    const f = os.platform() === 'win32' ? '_netrc' : '.netrc'
+    let f = os.platform() === 'win32' ? '_netrc' : '.netrc'
+    if (fs.existsSync(f + '.gpg')) f += '.gpg'
     this._home = new Netrc(path.join(os.homedir(), f))
     return this._home
   }
   static _home: Netrc
 
   constructor (file: string) {
+    this._tokens = []
     this.file = file
-    this.machines = machinesProxy()
+    this.machines = machinesProxy(this._tokens)
     this._parse()
   }
 
@@ -203,7 +228,6 @@ class Netrc {
   }
 
   _parse () {
-    this._tokens = []
     let tokens = lex(readFile(this.file))
     for (let i = 0; i < tokens.length; i++) {
       let getMachineTokens = () => {
