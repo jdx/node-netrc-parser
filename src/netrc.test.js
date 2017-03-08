@@ -137,3 +137,57 @@ test('invalid', () => {
     expect(netrc).toBeNull()
   } catch (err) { expect(err.message).toContain('Unexpected character during netrc parsing') }
 })
+
+test('saving', () => {
+  const f = `tmp/netrc`
+  fs.writeFileSync(f, `# I am a comment
+machine mail.google.com
+\tlogin joe@gmail.com
+  password somethingSecret #end of line comment with trailing space
+ # I am another comment
+
+macdef allput
+put src/*
+
+macdef allput2
+  put src/*
+put src2/*
+
+machine ray login demo password mypassword
+
+machine weirdlogin login uname password pass#pass
+
+default
+  login anonymous
+  password joe@example.com
+`)
+  const netrc = new Netrc(f)
+  netrc.machines['mail.google.com'].login = 'joe2@gmail.com'
+  netrc.machines['mail.google.com'].account = 'justanaccount'
+  netrc.machines['ray'].login = 'demo2'
+  netrc.machines['ray'].account = 'newaccount'
+  netrc.save()
+
+  expect(fs.readFileSync(f, 'utf8')).toEqual(`# I am a comment
+machine mail.google.com
+\taccount justanaccount
+\tlogin joe2@gmail.com
+  password somethingSecret #end of line comment with trailing space
+ # I am another comment
+
+macdef allput
+put src/*
+
+macdef allput2
+  put src/*
+put src2/*
+
+machine ray account newaccount login demo2 password mypassword
+
+machine weirdlogin login uname password pass#pass
+
+default
+  login anonymous
+  password joe@example.com
+`)
+})

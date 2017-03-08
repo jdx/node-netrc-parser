@@ -7,6 +7,7 @@ const Lexer = require('lex')
 
 type MachineToken = {
   type: 'machine',
+  content: string,
   value: string
 }
 
@@ -17,7 +18,8 @@ type PropToken = {
 }
 
 type DefaultToken = {
-  type: 'default'
+  type: 'default',
+  content: string
 }
 
 type MacdefToken = {
@@ -38,14 +40,23 @@ type WhitespaceToken = {
 type Token = | MachineToken | PropToken | DefaultToken | MacdefToken | WhitespaceToken | CommentToken
 
 type Machine = {
+  type: 'machine' | 'default',
   machine?: string,
   login?: string,
+  account?: string,
   password?: string,
   _tokens?: Token[]
 }
 
 type Machines = {
   [host: string]: Machine
+}
+
+function findIndex (arr, fn): number {
+  for (let i = 0; i < arr.length; i++) {
+    if (fn(arr[i])) return i
+  }
+  return -1
 }
 
 function readFile (file: string): string {
@@ -79,7 +90,7 @@ ${body}`)
   }, [0, 1, 3])
   lexer.addRule(/machine +(\S+)/, function (content, value) {
     this.state = 1
-    tokens.push({type: 'machine', value})
+    tokens.push({type: 'machine', content, value})
   }, [0, 1, 3])
   lexer.addRule(/[\s\S\n]/, function (content) {
     (tokens[tokens.length - 1]: any).content += content
@@ -88,9 +99,9 @@ ${body}`)
   lexer.addRule(/([a-zA-Z]+) +(\S+)/, (content, name, value) => {
     tokens.push({type: 'prop', name, value})
   }, [1])
-  lexer.addRule(/default/, function () {
+  lexer.addRule(/default/, function (content) {
     this.state = 1
-    tokens.push({type: 'default'})
+    tokens.push({type: 'default', content})
   }, [0])
 
   lexer.setInput(body).lex()
@@ -98,11 +109,20 @@ ${body}`)
 }
 
 function machineProxy (machine: Machine) {
-  const props = (): PropToken[] => ((machine._tokens || []).filter(t => t.type === 'prop'): any)
+  let tokens = machine._tokens = machine._tokens || []
+  const props = (): PropToken[] => (tokens.filter(t => t.type === 'prop'): any)
   for (let prop of props()) machine[prop.name] = prop.value
   return new Proxy(machine, {
     set: (machine, name, value) => {
-      return false
+      machine[name] = value
+      let prop = props().find(p => p.name === name)
+      if (prop) prop.value = value
+      else {
+        let lastPropIdx = findIndex(tokens, t => t.type === 'prop')
+        tokens.splice(lastPropIdx, 0, tokens[lastPropIdx - 1]) // insert whitespace
+        tokens.splice(lastPropIdx, 0, {type: 'prop', name, value})
+      }
+      return true
     }
   })
 }
@@ -131,22 +151,53 @@ class Netrc {
   }
 
   static get default (): Netrc {
+    if (this._default) return this._default
     const f = os.platform() === 'win32' ? '_netrc' : '.netrc'
-    return new Netrc(path.join(os.homedir(), f))
+    this._default = new Netrc(path.join(os.homedir(), f))
+    return this._default
   }
+  static _default: Netrc
 
   constructor (file: string) {
+    this.file = file
     this.machines = machinesProxy()
-    this._parse(file)
+    this._parse()
   }
 
+  file: string
   machines: Machines
   default: ?Machine
   _tokens: (Token | Machine)[]
 
-  _parse (file: string) {
+  save () {
+    let body = this._tokens.map(t => {
+      switch (t.type) {
+        case 'default':
+        case 'machine':
+          let tokens: Token[] = (t: any)._tokens || []
+          return tokens.map(t => {
+            switch (t.type) {
+              case 'prop':
+                return `${t.name} ${t.value}`
+              case 'machine':
+              case 'default':
+              case 'comment':
+              case 'whitespace':
+                return t.content
+            }
+          }).join('')
+        case 'macdef':
+        case 'comment':
+        case 'whitespace':
+          return t.content
+      }
+    }).join('')
+    fs.writeFileSync(this.file, body)
+  }
+
+  _parse () {
     this._tokens = []
-    let tokens = lex(readFile(file))
+    let tokens = lex(readFile(this.file))
     for (let i = 0; i < tokens.length; i++) {
       let getMachineTokens = () => {
         let machineTokens = []
