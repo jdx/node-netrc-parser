@@ -116,19 +116,24 @@ ${body}`)
 }
 
 function machineProxy (machine: Machine) {
-  let tokens = machine._tokens
-  const props = (): PropToken[] => (tokens.filter(t => t.type === 'prop'): any)
-  for (let prop of props()) machine[prop.name] = prop.value
+  const props = (): PropToken[] => (machine._tokens.filter(t => t.type === 'prop'): any)
+  const loadProps = () => props().forEach(prop => { machine[prop.name] = prop.value })
+  loadProps()
   return new Proxy(machine, {
     set: (machine, name, value) => {
+      if (name === '_tokens') {
+        machine._tokens = value
+        loadProps()
+        return true
+      }
       machine[name] = value
       let prop = props().find(p => p.name === name)
       if (prop) prop.value = value
       else {
-        let lastPropIdx = findIndex(tokens, t => t.type === 'prop')
-        let whitespace = lastPropIdx === -1 ? {type: 'whitespace', content: '\n  '} : tokens[lastPropIdx - 1]
-        tokens.splice(lastPropIdx, 0, whitespace) // insert whitespace
-        tokens.splice(lastPropIdx, 0, {type: 'prop', name, value})
+        let lastPropIdx = findIndex(machine._tokens, t => t.type === 'prop')
+        let whitespace = lastPropIdx === -1 ? {type: 'whitespace', content: '\n  '} : machine._tokens[lastPropIdx - 1]
+        machine._tokens.splice(lastPropIdx, 0, whitespace) // insert whitespace
+        machine._tokens.splice(lastPropIdx, 0, {type: 'prop', name, value})
       }
       return true
     }
@@ -149,7 +154,9 @@ function machinesProxy (content: (Machine | Token)[]) {
   }
   return new Proxy({}, {
     get: (machines, host) => {
-      return machines[host] || {}
+      if (typeof host !== 'string') return machines[host]
+      if (!machines[host]) machines[host] = addNewMachine(host)
+      return machines[host]
     },
     set: (machines, host, value) => {
       if (!machines[host]) machines[host] = addNewMachine(host)
@@ -253,8 +260,7 @@ class Netrc {
           break
         case 'machine':
           let host = tokens[i].value
-          this.machines[host] = {type: 'machine', _tokens: getMachineTokens()}
-          this._tokens.push(this.machines[host])
+          this.machines[host]._tokens = getMachineTokens()
           break
         default:
           this._tokens.push(tokens[i])
