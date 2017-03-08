@@ -141,22 +141,29 @@ function machinesProxy () {
  */
 class Netrc {
   /**
-   * gets the machines on the default netrc file
+   * gets the machines on the home netrc file
    * @example
    * const netrc = require('netrc-parser')
    * netrc.machines['api.heroku.com'].password // get auth token from ~/.netrc
    */
-  static get machines (): Machines {
-    return this.default.machines
-  }
+  static get machines (): Machines { return this.home.machines }
 
-  static get default (): Netrc {
-    if (this._default) return this._default
+  /**
+   * save the current home netrc with any changes
+   * @example
+   * const netrc = require('netrc-parser')
+   * netrc.machines['api.heroku.com'].password = 'newpassword'
+   * netrc.save()
+   */
+  static save () { this._home.save() }
+
+  static get home (): Netrc {
+    if (this._home) return this._home
     const f = os.platform() === 'win32' ? '_netrc' : '.netrc'
-    this._default = new Netrc(path.join(os.homedir(), f))
-    return this._default
+    this._home = new Netrc(path.join(os.homedir(), f))
+    return this._home
   }
-  static _default: Netrc
+  static _home: Netrc
 
   constructor (file: string) {
     this.file = file
