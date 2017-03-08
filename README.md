@@ -9,14 +9,21 @@
 
 ## Netrc
 
-[src/netrc.js:133-190](https://github.com/dickeyxxx/node-netrc-parser/blob/d0ff38be276c9b63e7566fa8a67d825232781749/src/netrc.js#L133-L190 "Source code on GitHub")
+[src/netrc.js:133-193](https://github.com/dickeyxxx/node-netrc-parser/blob/770082345b657433a5dd5645b2f4f35f3009ea63/src/netrc.js#L133-L193 "Source code on GitHub")
 
 parses a netrc file
 
 ### machines
 
-[src/netrc.js:137-139](https://github.com/dickeyxxx/node-netrc-parser/blob/d0ff38be276c9b63e7566fa8a67d825232781749/src/netrc.js#L137-L139 "Source code on GitHub")
+[src/netrc.js:140-142](https://github.com/dickeyxxx/node-netrc-parser/blob/770082345b657433a5dd5645b2f4f35f3009ea63/src/netrc.js#L140-L142 "Source code on GitHub")
 
 gets the machines on the default netrc file
+
+**Examples**
+
+```javascript
+const netrc = require('netrc-parser')
+netrc.machines['api.heroku.com'].password // get auth token from ~/.netrc
+```
 
 Returns **Machines** 
