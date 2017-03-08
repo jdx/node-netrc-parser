@@ -10,7 +10,8 @@ const Netrc = require('./netrc')
 fs.mkdirpSync('tmp')
 
 test('can read system netrc', () => {
-  expect(Netrc.machines).toBeTruthy()
+  let netrc = new Netrc()
+  expect(netrc.machines).toBeTruthy()
 })
 
 test('bad default order', () => {

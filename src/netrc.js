@@ -182,32 +182,17 @@ function machinesProxy (content: (Machine | Token)[]) {
  */
 class Netrc {
   /**
-   * gets the machines on the home netrc file
+   * generates or parses a netrc file
    * @example
-   * const netrc = require('netrc-parser')
+   * const Netrc = require('netrc-parser')
+   * const netrc = new Netrc()
    * netrc.machines['api.heroku.com'].password // get auth token from ~/.netrc
    */
-  static get machines (): Machines { return this.home.machines }
-
-  /**
-   * save the current home netrc with any changes
-   * @example
-   * const netrc = require('netrc-parser')
-   * netrc.machines['api.heroku.com'].password = 'newpassword'
-   * netrc.save()
-   */
-  static save () { this._home.save() }
-
-  static get home (): Netrc {
-    if (this._home) return this._home
-    let f = os.platform() === 'win32' ? '_netrc' : '.netrc'
-    if (fs.existsSync(f + '.gpg')) f += '.gpg'
-    this._home = new Netrc(path.join(os.homedir(), f))
-    return this._home
-  }
-  static _home: Netrc
-
-  constructor (file: string) {
+  constructor (file?: string) {
+    if (!file) {
+      file = path.join(os.homedir(), os.platform() === 'win32' ? '_netrc' : '.netrc')
+      if (fs.existsSync(file + '.gpg')) file += '.gpg'
+    }
     this._tokens = []
     this.file = file
     this.machines = machinesProxy(this._tokens)
@@ -219,6 +204,14 @@ class Netrc {
   default: ?Machine
   _tokens: (Token | Machine)[]
 
+  /**
+   * save the current home netrc with any changes
+   * @example
+   * const Netrc = require('netrc-parser')
+   * const netrc = new Netrc()
+   * netrc.machines['api.heroku.com'].password = 'newpassword'
+   * netrc.save()
+   */
   save () {
     let body = this._tokens.map(t => {
       switch (t.type) {
