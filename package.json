@@ -6,7 +6,6 @@
   "bugs": "https://github.com/dickeyxxx/node-netrc-parser/issues",
   "dependencies": {
     "babel-runtime": "6.23.0",
-    "jest-validate": "19.0.2",
     "lex": "1.7.9"
   },
   "devDependencies": {
@@ -18,9 +17,9 @@
     "flow-bin": "0.41.0",
     "fs-extra": "2.0.0",
     "jest": "19.0.2",
-    "jest-junit": "1.2.0",
+    "jest-junit": "1.3.0",
     "rimraf": "2.6.1",
-    "standard": "9.0.0"
+    "standard": "9.0.1"
   },
   "homepage": "https://github.com/dickeyxxx/node-netrc-parser",
   "keywords": [
