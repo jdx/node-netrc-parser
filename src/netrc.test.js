@@ -127,3 +127,13 @@ pQgBLBordnqQajWt1ao+8AZiAsOooF0wJqm/mH1Og5/ADuhvZEQ=
     password: 'somethingSecret'
   })
 })
+
+test('invalid', () => {
+  expect.assertions(1)
+  const f = `tmp/netrc`
+  fs.writeFileSync(f, 'machine')
+  try {
+    let netrc = new Netrc(f)
+    expect(netrc).toBeNull()
+  } catch (err) { expect(err.message).toContain('Unexpected character during netrc parsing') }
+})

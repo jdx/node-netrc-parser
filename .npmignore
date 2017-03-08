@@ -2,6 +2,9 @@
 .flowconfig
 .npmignore
 circle.yml
+coverage
+example
+example.js
 flow-typed
 gpg.key
 src
