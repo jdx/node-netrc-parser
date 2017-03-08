@@ -31,14 +31,12 @@ test('bad default order', () => {
   const netrc = new Netrc(f)
 
   expect(netrc.machines['mail.google.com']).toMatchObject({
-    machine: 'mail.google.com',
     login: 'joe@gmail.com',
     account: 'gmail',
     password: 'somethingSecret'
   })
 
   expect(netrc.machines['ray']).toMatchObject({
-    machine: 'ray',
     login: 'demo',
     password: 'mypassword'
   })
@@ -51,7 +49,7 @@ test('it loads the netrc file with comments', () => {
   password myapikey`)
   const netrc = new Netrc(f)
 
-  expect(netrc.machines['api.dickeyxxx.com']).toEqual({
+  expect(netrc.machines['api.dickeyxxx.com']).toMatchObject({
     login: 'jeff@foo.com',
     password: 'myapikey'
   })
@@ -123,7 +121,7 @@ pQgBLBordnqQajWt1ao+8AZiAsOooF0wJqm/mH1Og5/ADuhvZEQ=
 -----END PGP MESSAGE-----`)
   const netrc = new Netrc(f)
 
-  expect(netrc.machines['mail.google.com']).toEqual({
+  expect(netrc.machines['mail.google.com']).toMatchObject({
     login: 'joe@gmail.com',
     account: 'justagmail',
     password: 'somethingSecret'
