@@ -28,7 +28,7 @@
   ],
   "license": "ISC",
   "main": "lib/netrc.js",
-  "repository": "dickeyxxxx/node-netrc-parser",
+  "repository": "dickeyxxx/node-netrc-parser",
   "scripts": {
     "build": "babel src -d lib --ignore '*.test.js'",
     "clean": "rimraf lib",
