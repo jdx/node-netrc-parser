@@ -9,13 +9,13 @@
 
 ## Netrc
 
-[src/netrc.js:133-193](https://github.com/dickeyxxx/node-netrc-parser/blob/770082345b657433a5dd5645b2f4f35f3009ea63/src/netrc.js#L133-L193 "Source code on GitHub")
+[src/netrc.js:142-233](https://github.com/dickeyxxx/node-netrc-parser/blob/844949ed3577f30c53a78c99c7407017573ebe3d/src/netrc.js#L142-L233 "Source code on GitHub")
 
 parses a netrc file
 
 ### machines
 
-[src/netrc.js:140-142](https://github.com/dickeyxxx/node-netrc-parser/blob/770082345b657433a5dd5645b2f4f35f3009ea63/src/netrc.js#L140-L142 "Source code on GitHub")
+[src/netrc.js:149-151](https://github.com/dickeyxxx/node-netrc-parser/blob/844949ed3577f30c53a78c99c7407017573ebe3d/src/netrc.js#L149-L151 "Source code on GitHub")
 
 gets the machines on the default netrc file
 
