@@ -5,8 +5,8 @@
   "author": "Jeff Dickey (@dickeyxxx)",
   "bugs": "https://github.com/dickeyxxx/node-netrc-parser/issues",
   "dependencies": {
-    "babel-runtime": "6.23.0",
-    "lex": "1.7.9"
+    "babel-runtime": "^6.23.0",
+    "lex": "^1.7.9"
   },
   "devDependencies": {
     "babel-eslint": "7.1.1",
