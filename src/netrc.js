@@ -149,10 +149,12 @@ function machinesProxy (content: (Machine | Token)[]) {
   }
   return new Proxy({}, {
     get: (machines, host) => {
+      if (typeof host !== 'string') return machines[host]
       if (!machines[host]) machines[host] = addNewMachine(host)
       return machines[host]
     },
     set: (machines, host, value) => {
+      if (!machines[host]) machines[host] = addNewMachine(host)
       machines[host] = machineProxy(value)
       return true
     }
