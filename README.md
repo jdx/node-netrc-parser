@@ -9,13 +9,13 @@
 
 ## Netrc
 
-[src/netrc.js:165-264](https://github.com/dickeyxxx/node-netrc-parser/blob/a61d0578dc33578bc551b08a56ceddfb05295049/src/netrc.js#L165-L264 "Source code on GitHub")
+[src/netrc.js:165-264](https://github.com/dickeyxxx/node-netrc-parser/blob/a9fe7c9efd14e971c0ee03dcf36a6c1ebf832bd0/src/netrc.js#L165-L264 "Source code on GitHub")
 
 parses a netrc file
 
 ### machines
 
-[src/netrc.js:172-172](https://github.com/dickeyxxx/node-netrc-parser/blob/a61d0578dc33578bc551b08a56ceddfb05295049/src/netrc.js#L172-L172 "Source code on GitHub")
+[src/netrc.js:172-172](https://github.com/dickeyxxx/node-netrc-parser/blob/a9fe7c9efd14e971c0ee03dcf36a6c1ebf832bd0/src/netrc.js#L172-L172 "Source code on GitHub")
 
 gets the machines on the home netrc file
 
@@ -30,7 +30,7 @@ Returns **Machines**
 
 ### save
 
-[src/netrc.js:181-181](https://github.com/dickeyxxx/node-netrc-parser/blob/a61d0578dc33578bc551b08a56ceddfb05295049/src/netrc.js#L181-L181 "Source code on GitHub")
+[src/netrc.js:181-181](https://github.com/dickeyxxx/node-netrc-parser/blob/a9fe7c9efd14e971c0ee03dcf36a6c1ebf832bd0/src/netrc.js#L181-L181 "Source code on GitHub")
 
 save the current home netrc with any changes
 
