@@ -133,6 +133,9 @@ function machinesProxy () {
 class Netrc {
   /**
    * gets the machines on the default netrc file
+   * @example
+   * const netrc = require('netrc-parser')
+   * netrc.machines['api.heroku.com'].password // get auth token from ~/.netrc
    */
   static get machines (): Machines {
     return this.default.machines
