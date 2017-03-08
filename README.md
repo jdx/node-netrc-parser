@@ -9,35 +9,39 @@
 
 ## Netrc
 
-[src/netrc.js:183-281](https://github.com/dickeyxxx/node-netrc-parser/blob/c49368391130df341e9d366bfdf904c67e7931ea/src/netrc.js#L183-L281 "Source code on GitHub")
+[src/netrc.js:183-274](https://github.com/dickeyxxx/node-netrc-parser/blob/4ed44c62cd3939e1e5cd1ed3731f5ae46b2e40e7/src/netrc.js#L183-L274 "Source code on GitHub")
 
 parses a netrc file
 
-### machines
+### constructor
 
-[src/netrc.js:190-190](https://github.com/dickeyxxx/node-netrc-parser/blob/c49368391130df341e9d366bfdf904c67e7931ea/src/netrc.js#L190-L190 "Source code on GitHub")
+[src/netrc.js:191-200](https://github.com/dickeyxxx/node-netrc-parser/blob/4ed44c62cd3939e1e5cd1ed3731f5ae46b2e40e7/src/netrc.js#L191-L200 "Source code on GitHub")
 
-gets the machines on the home netrc file
+generates or parses a netrc file
+
+**Parameters**
+
+-   `file` **[string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** 
 
 **Examples**
 
 ```javascript
-const netrc = require('netrc-parser')
+const Netrc = require('netrc-parser')
+const netrc = new Netrc()
 netrc.machines['api.heroku.com'].password // get auth token from ~/.netrc
 ```
 
-Returns **Machines** 
-
 ### save
 
-[src/netrc.js:199-199](https://github.com/dickeyxxx/node-netrc-parser/blob/c49368391130df341e9d366bfdf904c67e7931ea/src/netrc.js#L199-L199 "Source code on GitHub")
+[src/netrc.js:215-239](https://github.com/dickeyxxx/node-netrc-parser/blob/4ed44c62cd3939e1e5cd1ed3731f5ae46b2e40e7/src/netrc.js#L215-L239 "Source code on GitHub")
 
 save the current home netrc with any changes
 
 **Examples**
 
 ```javascript
-const netrc = require('netrc-parser')
+const Netrc = require('netrc-parser')
+const netrc = new Netrc()
 netrc.machines['api.heroku.com'].password = 'newpassword'
 netrc.save()
 ```
