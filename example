@@ -1,0 +1,22 @@
+#starting comment
+machine api.foo.com
+  login me@me.com
+  password mypass
+
+default
+  login foo
+
+macdef dailyupload
+  cd /pub/tests
+  bin
+  put daily-$1.tar.gz
+  quit
+
+# this is a comment
+
+macdef macde2
+  another maafff
+
+machine api.bar.com #another comment
+  login me@me2.com
+  password mypass2

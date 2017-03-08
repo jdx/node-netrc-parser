@@ -30,13 +30,15 @@ test('bad default order', () => {
 `)
   const netrc = new Netrc(f)
 
-  expect(netrc.machines['mail.google.com']).toEqual({
+  expect(netrc.machines['mail.google.com']).toMatchObject({
+    machine: 'mail.google.com',
     login: 'joe@gmail.com',
     account: 'gmail',
     password: 'somethingSecret'
   })
 
-  expect(netrc.machines['ray']).toEqual({
+  expect(netrc.machines['ray']).toMatchObject({
+    machine: 'ray',
     login: 'demo',
     password: 'mypassword'
   })
@@ -64,7 +66,7 @@ default
   password myapikey`)
   const netrc = new Netrc(f)
 
-  expect(netrc.default).toEqual({
+  expect(netrc.default).toMatchObject({
     login: 'ld',
     password: 'myapikey'
   })
@@ -96,7 +98,7 @@ default
 `)
   const netrc = new Netrc(f)
 
-  expect(netrc.machines['mail.google.com']).toEqual({
+  expect(netrc.machines['mail.google.com']).toMatchObject({
     login: 'joe@gmail.com',
     account: 'justagmail',
     password: 'somethingSecret'
