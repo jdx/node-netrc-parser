@@ -61,12 +61,10 @@ function readFile (file: string): string {
 }
 
 function lex (body: string): Token[] {
-  let row = 1
-  let col = 1
   let tokens: Token[] = []
   let lexer = new Lexer(char => {
-    throw new Error(`Unexpected character during netrc parsing at row ${row}, col ${col}:
-${body.split('\n')[row]}`)
+    throw new Error(`Unexpected character during netrc parsing at character ${char}:
+${body}`)
   })
   lexer.addRule(/\s+/, content => {
     tokens.push({type: 'whitespace', content})
@@ -94,15 +92,6 @@ ${body.split('\n')[row]}`)
     this.state = 1
     tokens.push({type: 'default'})
   }, [0])
-
-  lexer.addRule(/\n/, function () {
-    row++
-    col = 1
-  }, [])
-  lexer.addRule(/./, function (t) {
-    this.reject = true
-    col++
-  }, [])
 
   lexer.setInput(body).lex()
   return tokens
