@@ -197,3 +197,27 @@ machine new
   login myuser
 `)
 })
+
+test('adding a machine should create a new entry', () => {
+  const f = `tmp/netrc`
+
+  const beforeSave = `machine api.dickeyxxx.com # foo
+  login jeff@foo.com
+  password myapikey`
+
+  fs.writeFileSync(f, beforeSave)
+
+  const netrc = new Netrc(f)
+  netrc.machines['foo.bar.com'].login = 'foo@bar.com'
+  netrc.machines['foo.bar.com'].password = 'foopassword'
+  netrc.save()
+
+  const afterSave = `machine api.dickeyxxx.com # foo
+  login jeff@foo.com
+  password myapikey
+machine foo.bar.com
+  password foopassword
+  login foo@bar.com\n`
+
+  expect(fs.readFileSync(f, 'utf8')).toEqual(afterSave)
+})
