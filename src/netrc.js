@@ -67,10 +67,10 @@ function readFile (file: string): string {
     return (stdout: any)
   }
 
-  if (path.extname(file) === '.gpg') return decryptFile(file)
+  if (path.extname(file) === '.gpg') return addTrailingNewline(decryptFile(file))
   else {
     try {
-      return fs.readFileSync(file, 'utf8')
+      return addTrailingNewline(fs.readFileSync(file, 'utf8'))
     } catch (err) {
       if (err.code !== 'ENOENT') throw err
       return ''
@@ -175,6 +175,11 @@ function machinesProxy (content: (Machine | Token)[]) {
       return true
     }
   })
+}
+
+function addTrailingNewline (s): string {
+  if (s.endsWith('\n')) return s
+  return s + '\n'
 }
 
 /**
