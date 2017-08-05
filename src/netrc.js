@@ -78,6 +78,21 @@ function readFile (file: string): string {
   }
 }
 
+function writeFile (file: string, body: string) {
+  function encryptFile (file: string, body: string) {
+    const {tmpNameSync} = require('tmp')
+    const tmpName = tmpNameSync()
+    const {spawnSync} = require('child_process')
+    const {status} = spawnSync('gpg', ['--batch', '--quiet', '--encrypt', '--output', tmpName], {input: body, stdio: [null, null, 2], encoding: 'utf8'})
+    if (status !== 0) throw new Error(`gpg exited with code ${status}`)
+    fs.renameSync(tmpName, file)
+    fs.chmodSync(file, 0o600)
+  }
+
+  if (path.extname(file) === '.gpg') return encryptFile(file, body)
+  else fs.writeFileSync(file, body, {mode: 0o600})
+}
+
 function lex (body: string): Token[] {
   let tokens: Token[] = []
   let lexer = new Lexer(char => {
@@ -240,7 +255,7 @@ class Netrc {
           return t.content
       }
     }).join('')
-    fs.writeFileSync(this.file, body, {mode: 0o600})
+    writeFile(this.file, body)
   }
 
   _parse () {

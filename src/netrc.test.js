@@ -198,6 +198,35 @@ machine new
 `)
 })
 
+test('saving.gpg', () => {
+  const f = `tmp/netrc.gpg`
+  fs.writeFileSync(f, `-----BEGIN PGP MESSAGE-----
+Version: GnuPG v2
+
+hIwD1rghrTHCzmIBA/9JIhd9NaY64C7QMIOa8KV/e97Hs9he6EAHdhDUMeb6/5HU
+KaxHX77rHjF0TxNUumQrMTfp+EjKzjuDqTxrv0TnpqB8JYhwLqVCGPM+OvjNlILy
+/EdDpkqEaKqM4KArRQjE4n8ifAi5CbldI/mO+oBvHTq5StJDNEhE+xMjRzGJ29LA
+VQEWWdR291Z8Y0cbZwX2DmGsPuo6tX0JeWQlG9ms8966wVk2LKFuUyynHBVjcsjv
+REKnai8ZixhaKRBE/NOiLo/Eqp6nI7/i8YU+mYV0rFljpLSnQ7LJcgw3ItyKXQ9F
+ws16ShzCIGM11JFySwb0NoV6H9VSakfu2LN1RpKFD2lvc6i75N0NWf0Jh/mKHFz+
+ugLe8sik/Zu8grrxtOVxfgtjFEQvjT3u02D4pDQP1lNp7SjVfqUC+XnxWQC+SQVC
+kKvydwB3oZqwHp6jpgLVTxjTfhm1vNTB7gAbgNOF63yQ/Wmrn3Pe38huh+TIKJCy
+pQgBLBordnqQajWt1ao+8AZiAsOooF0wJqm/mH1Og5/ADuhvZEQ=
+=PGaL
+-----END PGP MESSAGE-----`)
+  const netrc = new Netrc(f)
+  netrc.machines['mail.google.com'].login = 'joe2@gmail.com'
+  netrc.machines['mail.google.com'].account = 'justanaccount'
+  netrc.save()
+
+  const netrc2 = new Netrc(f)
+  expect(netrc2.machines['mail.google.com']).toMatchObject({
+    login: 'joe2@gmail.com',
+    account: 'justanaccount',
+    password: 'somethingSecret'
+  })
+})
+
 test('adding a machine should create a new entry', () => {
   const f = `tmp/netrc`
 

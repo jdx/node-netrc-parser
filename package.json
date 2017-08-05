@@ -5,7 +5,8 @@
   "author": "Jeff Dickey (@dickeyxxx)",
   "bugs": "https://github.com/dickeyxxx/node-netrc-parser/issues",
   "dependencies": {
-    "lex": "^1.7.9"
+    "lex": "^1.7.9",
+    "tmp": "^0.0.31"
   },
   "devDependencies": {
     "babel-cli": "6.24.1",
