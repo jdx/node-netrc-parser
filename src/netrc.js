@@ -89,7 +89,7 @@ function writeFile (file: string, body: string) {
     fs.chmodSync(file, 0o600)
   }
 
-  if (path.extname(file) === '.gpg') return encryptFile(file, body)
+  if (path.extname(file) === '.gpg') encryptFile(file, body)
   else fs.writeFileSync(file, body, {mode: 0o600})
 }
 
