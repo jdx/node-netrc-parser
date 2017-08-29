@@ -127,6 +127,9 @@ pQgBLBordnqQajWt1ao+8AZiAsOooF0wJqm/mH1Og5/ADuhvZEQ=
     account: 'justagmail',
     password: 'somethingSecret'
   })
+
+  netrc.save()
+  expect(fs.readFileSync(f, {encoding: 'utf8'})).toContain('-----BEGIN PGP MESSAGE-----')
 })
 
 test('invalid', () => {

@@ -4,6 +4,7 @@ const fs = require('fs')
 const os = require('os')
 const path = require('path')
 const Lexer = require('lex')
+const debug = require('debug')('netrc-parser')
 
 type MachineToken = {
   type: 'machine',
@@ -62,7 +63,9 @@ function findIndex (arr, fn): number {
 function readFile (file: string): string {
   function decryptFile (file: string): string {
     const {spawnSync} = require('child_process')
-    const {stdout, status} = spawnSync('gpg', ['--batch', '--quiet', '--decrypt', file], {stdio: [0, null, 2], encoding: 'utf8'})
+    const args = ['--batch', '--quiet', '--decrypt', file]
+    debug('running gpg with args %o', args)
+    const {stdout, status} = spawnSync('gpg', args, {stdio: [0, null, 2], encoding: 'utf8'})
     if (status !== 0) throw new Error(`gpg exited with code ${status}`)
     return (stdout: any)
   }
@@ -240,6 +243,22 @@ class Netrc {
           return t.content
       }
     }).join('')
+    this._write(body)
+  }
+
+  _write (body: string) {
+    if (this.file.endsWith('.gpg')) {
+      const {spawnSync} = require('child_process')
+      const args = ['-a', '--batch', '--default-recipient-self', '-e']
+      debug('running gpg with args %o', args)
+      const {stdout, status} = spawnSync('gpg', args, {
+        input: body,
+        stdio: [null, 'pipe', 2],
+        encoding: 'utf8'
+      })
+      if (status !== 0) throw new Error(`gpg exited with code ${status}`)
+      body = (stdout: any)
+    }
     fs.writeFileSync(this.file, body, {mode: 0o600})
   }
 
