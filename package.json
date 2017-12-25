@@ -21,6 +21,9 @@
     "rimraf": "2.6.1",
     "standard": "9.0.1"
   },
+  "files": [
+    "lib"
+  ],
   "homepage": "https://github.com/dickeyxxx/node-netrc-parser",
   "keywords": [
     "netrc"
