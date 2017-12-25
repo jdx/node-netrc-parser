@@ -1,7 +1,7 @@
 {
   "name": "netrc-parser",
   "description": "netrc parser",
-  "version": "2.0.4",
+  "version": "2.0.5",
   "author": "Jeff Dickey (@dickeyxxx)",
   "bugs": "https://github.com/dickeyxxx/node-netrc-parser/issues",
   "dependencies": {
