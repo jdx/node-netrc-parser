@@ -190,6 +190,19 @@ function addTrailingNewline (s): string {
   return s + '\n'
 }
 
+function homedir () {
+  return (
+    (os.platform === 'win32' &&
+      (process.env.HOME ||
+        (process.env.HOMEDRIVE &&
+          process.env.HOMEPATH &&
+          path.join(process.env.HOMEDRIVE, process.env.HOMEPATH)) ||
+        process.env.USERPROFILE)) ||
+    os.homedir() ||
+    os.tmpdir()
+  )
+}
+
 /**
  * parses a netrc file
  */
@@ -203,7 +216,7 @@ class Netrc {
    */
   constructor (file?: string) {
     if (!file) {
-      file = path.join(os.homedir(), os.platform() === 'win32' ? '_netrc' : '.netrc')
+      file = path.join(homedir(), os.platform() === 'win32' ? '_netrc' : '.netrc')
       if (fs.existsSync(file + '.gpg')) file += '.gpg'
     }
     this._tokens = []
