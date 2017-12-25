@@ -4,7 +4,12 @@ const fs = require('fs')
 const os = require('os')
 const path = require('path')
 const Lexer = require('lex')
-const debug = require('debug')('netrc-parser')
+
+let _debug
+function debug (...args) {
+  if (!_debug) _debug = require('debug')('netrc-parser')
+  _debug(...args)
+}
 
 type MachineToken = {
   type: 'machine',
