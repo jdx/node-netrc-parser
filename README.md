@@ -9,13 +9,13 @@
 
 ## Netrc
 
-[src/netrc.js:191-298](https://github.com/jdxcode/node-netrc-parser/blob/16af9e8d4cb713584e0e953c75a4c5833c5f8fcd/src/netrc.js#L191-L298 "Source code on GitHub")
+[src/netrc.js:209-316](https://github.com/jdxcode/node-netrc-parser/blob/42439989478f8329e0c53125aec72d70a3f3525f/src/netrc.js#L209-L316 "Source code on GitHub")
 
 parses a netrc file
 
 ### constructor
 
-[src/netrc.js:199-208](https://github.com/jdxcode/node-netrc-parser/blob/16af9e8d4cb713584e0e953c75a4c5833c5f8fcd/src/netrc.js#L199-L208 "Source code on GitHub")
+[src/netrc.js:217-226](https://github.com/jdxcode/node-netrc-parser/blob/42439989478f8329e0c53125aec72d70a3f3525f/src/netrc.js#L217-L226 "Source code on GitHub")
 
 generates or parses a netrc file
 
@@ -33,7 +33,7 @@ netrc.machines['api.heroku.com'].password // get auth token from ~/.netrc
 
 ### save
 
-[src/netrc.js:223-247](https://github.com/jdxcode/node-netrc-parser/blob/16af9e8d4cb713584e0e953c75a4c5833c5f8fcd/src/netrc.js#L223-L247 "Source code on GitHub")
+[src/netrc.js:241-265](https://github.com/jdxcode/node-netrc-parser/blob/42439989478f8329e0c53125aec72d70a3f3525f/src/netrc.js#L241-L265 "Source code on GitHub")
 
 save the current home netrc with any changes
 
