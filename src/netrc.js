@@ -7,8 +7,10 @@ const Lexer = require('lex')
 
 let _debug
 function debug (...args) {
-  if (!_debug) _debug = require('debug')('netrc-parser')
-  _debug(...args)
+  try {
+    if (!_debug) _debug = require('debug')('netrc-parser')
+    _debug(...args)
+  } catch (err) {}
 }
 
 type MachineToken = {
