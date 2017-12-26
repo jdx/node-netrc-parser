@@ -1,0 +1,32 @@
+---
+version: 2
+jobs:
+  build:
+    working_directory: /cli
+    docker:
+      - image: node:9
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - v0-yarn-{{ .Branch }}-{{checksum "yarn.lock"}}
+            - v0-yarn-{{ .Branch }}
+            - v0-yarn-master
+      - run: |
+          set -exu
+          yarn
+          gpg --import gpg.key
+
+          cat > ~/.netrc <<EOF
+          machine foo.com
+            login l
+            password p
+          EOF
+      - run: yarn
+      - run: yarn test --coverage
+      - run: bash <(curl -s https://codecov.io/bash)
+      - save_cache:
+          key: v0-yarn-{{ .Branch }}-{{checksum "yarn.lock"}}
+          paths:
+            - /cli/node_modules
+            - /usr/local/share/.cache/yarn
