@@ -16,7 +16,9 @@ test('can read system netrc', () => {
 
 test('bad default order', () => {
   const f = `tmp/netrc`
-  fs.writeFileSync(f, `# I am a comment
+  fs.writeFileSync(
+    f,
+    `# I am a comment
     machine mail.google.com
       login joe@gmail.com
       account gmail
@@ -28,52 +30,61 @@ test('bad default order', () => {
       password joe@example.com
 
     machine ray login demo password mypassword
-`)
+`,
+  )
   const netrc = new Netrc(f)
 
   expect(netrc.machines['mail.google.com']).toMatchObject({
     login: 'joe@gmail.com',
     account: 'gmail',
-    password: 'somethingSecret'
+    password: 'somethingSecret',
   })
 
   expect(netrc.machines['ray']).toMatchObject({
     login: 'demo',
-    password: 'mypassword'
+    password: 'mypassword',
   })
 })
 
 test('it loads the netrc file with comments', () => {
   const f = `tmp/netrc`
-  fs.writeFileSync(f, `machine api.dickeyxxx.com # foo
+  fs.writeFileSync(
+    f,
+    `machine api.dickeyxxx.com # foo
   login jeff@foo.com
-  password myapikey`)
+  password myapikey`,
+  )
   const netrc = new Netrc(f)
 
   expect(netrc.machines['api.dickeyxxx.com']).toMatchObject({
     login: 'jeff@foo.com',
-    password: 'myapikey'
+    password: 'myapikey',
   })
 })
 
 test('default only', () => {
   const f = `tmp/netrc`
-  fs.writeFileSync(f, `# this is my netrc with only a default
+  fs.writeFileSync(
+    f,
+    `# this is my netrc with only a default
 default
   login ld # this is my default username
   password pdcom
-  password myapikey`)
+  password myapikey`,
+  )
   const netrc = new Netrc(f)
 
   expect(netrc.default).toMatchObject({
     login: 'ld',
-    password: 'myapikey'
+    password: 'myapikey',
   })
 })
 
 test('good', () => {
   const f = `tmp/netrc`
-  fs.writeFileSync(f, `# I am a comment
+  fs.writeFileSync(
+    f,
+    `# I am a comment
 machine mail.google.com
 \tlogin joe@gmail.com
   account justagmail #end of line comment with trailing space
@@ -94,19 +105,22 @@ machine weirdlogin login uname password pass#pass
 default
   login anonymous
   password joe@example.com
-`)
+`,
+  )
   const netrc = new Netrc(f)
 
   expect(netrc.machines['mail.google.com']).toMatchObject({
     login: 'joe@gmail.com',
     account: 'justagmail',
-    password: 'somethingSecret'
+    password: 'somethingSecret',
   })
 })
 
 test('good.gpg', () => {
   const f = `tmp/netrc.gpg`
-  fs.writeFileSync(f, `-----BEGIN PGP MESSAGE-----
+  fs.writeFileSync(
+    f,
+    `-----BEGIN PGP MESSAGE-----
 Version: GnuPG v2
 
 hIwD1rghrTHCzmIBA/9JIhd9NaY64C7QMIOa8KV/e97Hs9he6EAHdhDUMeb6/5HU
@@ -119,17 +133,18 @@ ugLe8sik/Zu8grrxtOVxfgtjFEQvjT3u02D4pDQP1lNp7SjVfqUC+XnxWQC+SQVC
 kKvydwB3oZqwHp6jpgLVTxjTfhm1vNTB7gAbgNOF63yQ/Wmrn3Pe38huh+TIKJCy
 pQgBLBordnqQajWt1ao+8AZiAsOooF0wJqm/mH1Og5/ADuhvZEQ=
 =PGaL
------END PGP MESSAGE-----`)
+-----END PGP MESSAGE-----`,
+  )
   const netrc = new Netrc(f)
 
   expect(netrc.machines['mail.google.com']).toMatchObject({
     login: 'joe@gmail.com',
     account: 'justagmail',
-    password: 'somethingSecret'
+    password: 'somethingSecret',
   })
 
   netrc.save()
-  expect(fs.readFileSync(f, {encoding: 'utf8'})).toContain('-----BEGIN PGP MESSAGE-----')
+  expect(fs.readFileSync(f, { encoding: 'utf8' })).toContain('-----BEGIN PGP MESSAGE-----')
 })
 
 test('invalid', () => {
@@ -139,12 +154,16 @@ test('invalid', () => {
   try {
     let netrc = new Netrc(f)
     expect(netrc).toBeNull()
-  } catch (err) { expect(err.message).toContain('Unexpected character during netrc parsing') }
+  } catch (err) {
+    expect(err.message).toContain('Unexpected character during netrc parsing')
+  }
 })
 
 test('saving', () => {
   const f = `tmp/netrc`
-  fs.writeFileSync(f, `# I am a comment
+  fs.writeFileSync(
+    f,
+    `# I am a comment
 machine mail.google.com
 \tlogin joe@gmail.com
   password somethingSecret #end of line comment with trailing space
@@ -164,7 +183,8 @@ machine weirdlogin login uname password pass#pass
 default
   login anonymous
   password joe@example.com
-`)
+`,
+  )
   const netrc = new Netrc(f)
   netrc.machines['mail.google.com'].login = 'joe2@gmail.com'
   netrc.machines['mail.google.com'].account = 'justanaccount'
