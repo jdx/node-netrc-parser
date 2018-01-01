@@ -2,8 +2,8 @@
   "name": "netrc-parser",
   "description": "netrc parser",
   "version": "2.0.5",
-  "author": "Jeff Dickey (@dickeyxxx)",
-  "bugs": "https://github.com/dickeyxxx/node-netrc-parser/issues",
+  "author": "Jeff Dickey (@jdxcode)",
+  "bugs": "https://github.com/jdxcode/node-netrc-parser/issues",
   "dependencies": {
     "lex": "^1.7.9"
   },
@@ -24,13 +24,13 @@
   "files": [
     "lib"
   ],
-  "homepage": "https://github.com/dickeyxxx/node-netrc-parser",
+  "homepage": "https://github.com/jdxcode/node-netrc-parser",
   "keywords": [
     "netrc"
   ],
   "license": "ISC",
   "main": "lib/netrc.js",
-  "repository": "dickeyxxx/node-netrc-parser",
+  "repository": "jdxcode/node-netrc-parser",
   "scripts": {
     "build": "babel src -d lib --ignore '*.test.js'",
     "clean": "rimraf lib",
