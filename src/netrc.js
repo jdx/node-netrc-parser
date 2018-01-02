@@ -194,7 +194,7 @@ function addTrailingNewline (s): string {
 
 function homedir () {
   return (
-    (os.platform === 'win32' &&
+    (os.platform() === 'win32' &&
       (process.env.HOME ||
         (process.env.HOMEDRIVE &&
           process.env.HOMEPATH &&
