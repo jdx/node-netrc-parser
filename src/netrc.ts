@@ -1,8 +1,7 @@
 import * as fs from 'graceful-fs'
 import * as os from 'os'
 import * as path from 'path'
-
-const Lexer = require('lex')
+import lex, {Token} from './lex'
 
 let _debug: any
 function debug(...args: any[]) {
@@ -12,40 +11,6 @@ function debug(...args: any[]) {
     _debug(...args)
   } catch (err) {}
 }
-
-export interface MachineToken {
-  type: 'machine'
-  content: string
-  value: string
-}
-
-export interface PropToken {
-  type: 'prop'
-  name: keyof Machine
-  value: string
-}
-
-export interface DefaultToken {
-  type: 'default'
-  content: string
-}
-
-export interface MacdefToken {
-  type: 'macdef'
-  content: string
-}
-
-export interface CommentToken {
-  type: 'comment'
-  content: string
-}
-
-export interface WhitespaceToken {
-  type: 'whitespace'
-  content: string
-}
-
-export type Token = MachineToken | PropToken | DefaultToken | MacdefToken | WhitespaceToken | CommentToken
 
 export interface Machine {
   type: 'machine'
@@ -97,71 +62,6 @@ function readFile(file: string): string {
       return ''
     }
   }
-}
-
-function lex(body: string): Token[] {
-  let tokens: Token[] = []
-  let lexer = new Lexer((char: string) => {
-    throw new Error(`Unexpected character during netrc parsing at character ${char}:
-${body}`)
-  })
-  lexer.addRule(
-    /\s+/,
-    (content: string) => {
-      tokens.push({ type: 'whitespace', content })
-    },
-    [0, 1],
-  )
-  lexer.addRule(
-    /#.*/,
-    (content: string) => {
-      tokens.push({ type: 'comment', content })
-    },
-    [0, 1],
-  )
-
-  lexer.addRule(
-    /macdef/g,
-    function(this: any, content: string) {
-      this.state = 3
-      tokens.push({ type: 'macdef', content })
-    },
-    [0, 1, 3],
-  )
-  lexer.addRule(
-    /machine +(\S+)/,
-    function(this: any, content: string, value: string) {
-      this.state = 1
-      tokens.push({ type: 'machine', content, value })
-    },
-    [0, 1, 3],
-  )
-  lexer.addRule(
-    /[\s\S\n]/,
-    function(content: string) {
-      ;(tokens[tokens.length - 1] as WhitespaceToken).content += content
-    },
-    [3],
-  )
-
-  lexer.addRule(
-    /([a-zA-Z]+) +(\S+)/,
-    (_: string, name: string, value: string) => {
-      tokens.push({ type: 'prop', name: name as any, value })
-    },
-    [1],
-  )
-  lexer.addRule(
-    /default/,
-    function(this: any, content: string) {
-      this.state = 1
-      tokens.push({ type: 'default', content })
-    },
-    [0],
-  )
-
-  lexer.setInput(body).lex()
-  return tokens
 }
 
 function machineProxy(machine: Machine) {
@@ -248,11 +148,11 @@ function homedir() {
 /**
  * parses a netrc file
  */
-export default class Netrc {
+export class Netrc {
   /**
    * generates or parses a netrc file
    * @example
-   * const Netrc = require('netrc-parser')
+   * const {Netrc} = require('netrc-parser')
    * const netrc = new Netrc()
    * netrc.machines['api.heroku.com'].password // get auth token from ~/.netrc
    */
@@ -270,7 +170,7 @@ export default class Netrc {
   file: string
   machines: Machines
   default: Machine | undefined
-  _tokens: (Token | Machine)[]
+  private _tokens: (Token | Machine)[]
 
   /**
    * save the current home netrc with any changes
@@ -326,7 +226,7 @@ export default class Netrc {
     fs.writeFileSync(this.file, body, { mode: 0o600 })
   }
 
-  _parse() {
+  private _parse() {
     let tokens = lex(readFile(this.file))
     for (let i = 0; i < tokens.length; i++) {
       let getMachineTokens = () => {
@@ -358,3 +258,5 @@ export default class Netrc {
     }
   }
 }
+
+export default Netrc

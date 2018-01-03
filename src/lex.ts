@@ -1,51 +1,9 @@
+import * as Token from './token'
+
 const Lexer = require('lex')
 
-export interface MachineToken {
-  type: 'machine'
-  content: string
-  value: string
-}
-
-export interface PropToken {
-  type: 'prop'
-  name: keyof Machine
-  value: string
-}
-
-export interface DefaultToken {
-  type: 'default'
-  content: string
-}
-
-export interface MacdefToken {
-  type: 'macdef'
-  content: string
-}
-
-export interface CommentToken {
-  type: 'comment'
-  content: string
-}
-
-export interface WhitespaceToken {
-  type: 'whitespace'
-  content: string
-}
-
-export type Token = MachineToken | PropToken | DefaultToken | MacdefToken | WhitespaceToken | CommentToken
-
-export interface Machine {
-  type: 'machine'
-  machine?: string
-  login?: string
-  account?: string
-  password?: string
-  value?: string
-  _tokens: Token[]
-}
-
-export default function lex(body: string): Token[] {
-  let tokens: Token[] = []
+export default function lex(body: string): Token.Token[] {
+  let tokens: Token.Token[] = []
   let lexer = new Lexer((char: string) => {
     throw new Error(`Unexpected character during netrc parsing at character ${char}:
 ${body}`)
@@ -75,24 +33,24 @@ ${body}`)
   )
   lexer.addRule(
     /machine +(\S+)/,
-    function(this: any, content: string, value: string) {
+    function(this: any, content: string, host: string) {
       this.state = 1
-      tokens.push({ type: 'machine', content, value })
+      tokens.push({ type: 'machine', content, host })
     },
     [0, 1, 3],
   )
   lexer.addRule(
     /[\s\S\n]/,
     function(content: string) {
-      ;(tokens[tokens.length - 1] as WhitespaceToken).content += content
+      ;(tokens[tokens.length - 1] as Token.Whitespace).content += content
     },
     [3],
   )
 
   lexer.addRule(
     /([a-zA-Z]+) +(\S+)/,
-    (_: string, name: string, value: string) => {
-      tokens.push({ type: 'prop', name: name as any, value })
+    (content: string, name: string, value: string) => {
+      tokens.push({ type: 'prop', content, name: name as any, value })
     },
     [1],
   )
