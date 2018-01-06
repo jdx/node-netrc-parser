@@ -104,7 +104,7 @@ export class Netrc extends Token.Base {
 
   private writeSync(body: string) {
     if (this.file.endsWith('.gpg')) {
-      const { stdout, status } = execa.sync('gpg', this.gpgEncryptArgs, { input: body, stdio: [null, null, 2] })
+      const { stdout, status } = execa.sync('gpg', this.gpgEncryptArgs, { input: body, stdio: [null, null, 2] }) as any
       if (status !== 0) throw new Error(`gpg exited with code ${status}`)
       body = stdout
     }
@@ -162,7 +162,7 @@ export class Netrc extends Token.Base {
 
   private readFileSync(): string {
     const decryptFile = (): string => {
-      const { stdout, status } = execa.sync('gpg', this.gpgDecryptArgs, {stdio})
+      const { stdout, status } = execa.sync('gpg', this.gpgDecryptArgs, {stdio}) as any
       if (status !== 0) throw new Error(`gpg exited with code ${status}`)
       return stdout
     }
