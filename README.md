@@ -1,7 +1,7 @@
 # netrc-parser
 
-[![CircleCI](https://circleci.com/gh/dickeyxxx/node-netrc-parser.svg?style=svg)](https://circleci.com/gh/dickeyxxx/node-netrc-parser)
-[![codecov](https://codecov.io/gh/dickeyxxx/node-netrc-parser/branch/master/graph/badge.svg)](https://codecov.io/gh/dickeyxxx/node-netrc-parser)
+[![CircleCI](https://circleci.com/gh/jdxcode/node-netrc-parser/tree/master.svg?style=svg)](https://circleci.com/gh/jdxcode/node-netrc-parser/tree/master)
+[![codecov](https://codecov.io/gh/jdxcode/node-netrc-parser/branch/master/graph/badge.svg)](https://codecov.io/gh/jdxcode/node-netrc-parser)
 
 # API
 
