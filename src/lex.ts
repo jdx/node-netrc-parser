@@ -1,66 +1,67 @@
+import {inspect} from 'util'
+
 import * as Token from './token'
+
+const addTrailingNewline = (s: string) => s.endsWith('\n') ? s : `${s}\n`
 
 const Lexer = require('lex')
 
+enum SC {
+  Init = 0,
+  Machine = 1,
+}
+
 export default function lex(body: string): Token.Token[] {
+  body = addTrailingNewline(body)
   let tokens: Token.Token[] = []
   let lexer = new Lexer((char: string) => {
-    throw new Error(`Unexpected character during netrc parsing at character ${char}:
+    throw new Error(`Unexpected character during netrc parsing. char: ${inspect(char)}:
 ${body}`)
   })
   lexer.addRule(
-    /\s+/,
-    (content: string) => {
-      tokens.push({ type: 'whitespace', content })
+    /\s*\n/,
+    function (this: any, content: string) {
+      this.state = SC.Init
+      tokens.push({ type: 'newline', content })
     },
-    [0, 1],
+    [SC.Init, SC.Machine],
   )
   lexer.addRule(
-    /#.*/,
-    (content: string) => {
+    /\s*(#.*)\n/,
+    function (this: any, content: string) {
       tokens.push({ type: 'comment', content })
     },
-    [0, 1],
+    [SC.Init, SC.Machine],
   )
-
   lexer.addRule(
-    /macdef/g,
+    /([ \t]*)macdef.*\n(.*\S.+(\n|$))*/,
     function(this: any, content: string) {
-      this.state = 3
       tokens.push({ type: 'macdef', content })
     },
-    [0, 1, 3],
+    [SC.Init, SC.Machine],
   )
   lexer.addRule(
-    /machine +(\S+)/,
-    function(this: any, content: string, host: string) {
-      this.state = 1
-      tokens.push({ type: 'machine', content, host })
+    /([ \t]*)machine +(\S+)([ \t]*\n)?/,
+    function(this: any, _: string, pre: string, host: string, post: string) {
+      this.state = SC.Machine
+      tokens.push(new Token.Machine({ host, pre, post }))
     },
-    [0, 1, 3],
+    [SC.Init, SC.Machine],
   )
   lexer.addRule(
-    /[\s\S\n]/,
-    function(content: string) {
-      ;(tokens[tokens.length - 1] as Token.Whitespace).content += content
+    /([ \t]*)default([ \t]*\n)?/,
+    function(this: any, _: string, pre: string, post: string) {
+      this.state = SC.Machine
+      tokens.push(new Token.DefaultMachine({ pre, post }))
     },
-    [3],
-  )
-
-  lexer.addRule(
-    /([a-zA-Z]+) +(\S+)/,
-    (content: string, name: string, value: string) => {
-      tokens.push({ type: 'prop', content, name: name as any, value })
-    },
-    [1],
+    [SC.Init, SC.Machine],
   )
   lexer.addRule(
-    /default/,
-    function(this: any, content: string) {
-      this.state = 1
-      tokens.push({ type: 'default', content })
+    /([ \t]*)([a-zA-Z]+) +(\S+)([ \t]*\n)?/,
+    (_: string, pre: string, name: string, value: string, post: string) => {
+      tokens.push(new Token.Prop({pre, post, name: name as any, value }))
     },
-    [0],
+    [SC.Machine],
   )
 
   lexer.setInput(body).lex()

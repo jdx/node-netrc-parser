@@ -1,20 +1,23 @@
-// @flow
-/* globals
-   test
-   expect
-*/
-
-const fs = require('fs-extra')
-const Netrc = require('./netrc')
+import * as fs from 'fs-extra'
+import {Netrc} from './netrc'
 
 fs.mkdirpSync('tmp')
 
+process.env.NETRC_PARSER_DEBUG = '1'
+
 test('can read system netrc', () => {
   let netrc = new Netrc()
+  netrc.loadSync()
   expect(netrc.machines).toBeTruthy()
 })
 
-test('bad default order', () => {
+test('can read system netrc async', async () => {
+  let netrc = new Netrc()
+  await netrc.load()
+  expect(netrc.machines).toBeTruthy()
+})
+
+test('bad default order', async () => {
   const f = `tmp/netrc`
   fs.writeFileSync(
     f,
@@ -33,17 +36,14 @@ test('bad default order', () => {
 `,
   )
   const netrc = new Netrc(f)
+  await netrc.load()
 
-  expect(netrc.machines['mail.google.com']).toMatchObject({
-    login: 'joe@gmail.com',
-    account: 'gmail',
-    password: 'somethingSecret',
-  })
+  expect(netrc.machines['mail.google.com'].login).toEqual('joe@gmail.com')
+  expect(netrc.machines['mail.google.com'].account).toEqual('gmail')
+  expect(netrc.machines['mail.google.com'].password).toEqual('somethingSecret')
 
-  expect(netrc.machines['ray']).toMatchObject({
-    login: 'demo',
-    password: 'mypassword',
-  })
+  expect(netrc.machines['ray'].login).toEqual('demo')
+  expect(netrc.machines['ray'].password).toEqual('mypassword')
 })
 
 test('it loads the netrc file with comments', () => {
@@ -55,11 +55,10 @@ test('it loads the netrc file with comments', () => {
   password myapikey`,
   )
   const netrc = new Netrc(f)
+  netrc.loadSync()
 
-  expect(netrc.machines['api.dickeyxxx.com']).toMatchObject({
-    login: 'jeff@foo.com',
-    password: 'myapikey',
-  })
+  expect(netrc.machines['api.dickeyxxx.com'].login).toEqual('jeff@foo.com')
+  expect(netrc.machines['api.dickeyxxx.com'].password).toEqual('myapikey')
 })
 
 test('default only', () => {
@@ -73,11 +72,10 @@ default
   password myapikey`,
   )
   const netrc = new Netrc(f)
+  netrc.loadSync()
 
-  expect(netrc.default).toMatchObject({
-    login: 'ld',
-    password: 'myapikey',
-  })
+  expect(netrc.default!.login).toEqual('ld')
+  expect(netrc.default!.password).toEqual('pdcom')
 })
 
 test('good', () => {
@@ -108,19 +106,14 @@ default
 `,
   )
   const netrc = new Netrc(f)
+  netrc.loadSync()
 
-  expect(netrc.machines['mail.google.com']).toMatchObject({
-    login: 'joe@gmail.com',
-    account: 'justagmail',
-    password: 'somethingSecret',
-  })
+  expect(netrc.machines['mail.google.com'].login).toEqual('joe@gmail.com')
+  expect(netrc.machines['mail.google.com'].account).toEqual('justagmail')
+  expect(netrc.machines['mail.google.com'].password).toEqual('somethingSecret')
 })
 
-test('good.gpg', () => {
-  const f = `tmp/netrc.gpg`
-  fs.writeFileSync(
-    f,
-    `-----BEGIN PGP MESSAGE-----
+const gpgEncrypted = `-----BEGIN PGP MESSAGE-----
 Version: GnuPG v2
 
 hIwD1rghrTHCzmIBA/9JIhd9NaY64C7QMIOa8KV/e97Hs9he6EAHdhDUMeb6/5HU
@@ -133,17 +126,33 @@ ugLe8sik/Zu8grrxtOVxfgtjFEQvjT3u02D4pDQP1lNp7SjVfqUC+XnxWQC+SQVC
 kKvydwB3oZqwHp6jpgLVTxjTfhm1vNTB7gAbgNOF63yQ/Wmrn3Pe38huh+TIKJCy
 pQgBLBordnqQajWt1ao+8AZiAsOooF0wJqm/mH1Og5/ADuhvZEQ=
 =PGaL
------END PGP MESSAGE-----`,
-  )
+-----END PGP MESSAGE-----`
+
+test('good.gpg sync', () => {
+  const f = `tmp/netrc.gpg`
+  fs.writeFileSync(f, gpgEncrypted)
   const netrc = new Netrc(f)
+  netrc.loadSync()
 
-  expect(netrc.machines['mail.google.com']).toMatchObject({
-    login: 'joe@gmail.com',
-    account: 'justagmail',
-    password: 'somethingSecret',
-  })
+  expect(netrc.machines['mail.google.com'].login).toEqual('joe@gmail.com')
+  expect(netrc.machines['mail.google.com'].account).toEqual('justagmail')
+  expect(netrc.machines['mail.google.com'].password).toEqual('somethingSecret')
 
-  netrc.save()
+  netrc.saveSync()
+  expect(fs.readFileSync(f, { encoding: 'utf8' })).toContain('-----BEGIN PGP MESSAGE-----')
+})
+
+test('good.gpg', async () => {
+  const f = `tmp/netrc.gpg`
+  await fs.writeFile(f, gpgEncrypted)
+  const netrc = new Netrc(f)
+  await netrc.load()
+
+  expect(netrc.machines['mail.google.com'].login).toEqual('joe@gmail.com')
+  expect(netrc.machines['mail.google.com'].account).toEqual('justagmail')
+  expect(netrc.machines['mail.google.com'].password).toEqual('somethingSecret')
+
+  await netrc.save()
   expect(fs.readFileSync(f, { encoding: 'utf8' })).toContain('-----BEGIN PGP MESSAGE-----')
 })
 
@@ -153,7 +162,19 @@ test('invalid', () => {
   fs.writeFileSync(f, 'machine')
   try {
     let netrc = new Netrc(f)
-    expect(netrc).toBeNull()
+    netrc.loadSync()
+  } catch (err) {
+    expect(err.message).toContain('Unexpected character during netrc parsing')
+  }
+})
+
+test('invalid async', async () => {
+  expect.assertions(1)
+  const f = `tmp/netrc`
+  fs.writeFileSync(f, 'machine')
+  try {
+    let netrc = new Netrc(f)
+    await netrc.load()
   } catch (err) {
     expect(err.message).toContain('Unexpected character during netrc parsing')
   }
@@ -186,13 +207,13 @@ default
 `,
   )
   const netrc = new Netrc(f)
+  netrc.loadSync()
   netrc.machines['mail.google.com'].login = 'joe2@gmail.com'
   netrc.machines['mail.google.com'].account = 'justanaccount'
-  netrc.machines['ray'].login = 'demo2'
-  netrc.machines['ray'].account = 'newaccount'
-  netrc.machines['new'].login = 'myuser'
-  netrc.machines['new'].password = 'mypass'
-  netrc.save()
+  netrc.machines.ray.login = 'demo2'
+  netrc.machines.ray.account = 'newaccount'
+  netrc.machines['new'] = {login: 'myuser', password: 'mypass'}
+  netrc.saveSync()
 
   expect(fs.readFileSync(f, 'utf8')).toEqual(`# I am a comment
 machine mail.google.com
@@ -215,13 +236,14 @@ machine weirdlogin login uname password pass#pass
 default
   login anonymous
   password joe@example.com
+
 machine new
-  password mypass
   login myuser
+  password mypass
 `)
 })
 
-test('adding a machine should create a new entry', () => {
+test('adding a machine should create a new entry', async () => {
   const f = `tmp/netrc`
 
   const beforeSave = `machine api.dickeyxxx.com # foo
@@ -231,16 +253,171 @@ test('adding a machine should create a new entry', () => {
   fs.writeFileSync(f, beforeSave)
 
   const netrc = new Netrc(f)
-  netrc.machines['foo.bar.com'].login = 'foo@bar.com'
-  netrc.machines['foo.bar.com'].password = 'foopassword'
-  netrc.save()
+  await netrc.load()
+  netrc.machines['foo.bar.com'] = {login: 'foo@bar.com', password: 'foopassword'}
+  await netrc.save()
 
   const afterSave = `machine api.dickeyxxx.com # foo
   login jeff@foo.com
   password myapikey
+
 machine foo.bar.com
+  login foo@bar.com
+  password foopassword\n`
+
+  expect(fs.readFileSync(f, 'utf8')).toEqual(afterSave)
+})
+
+test('removing a machine', async () => {
+  const f = `tmp/netrc`
+
+  const beforeSave = `machine api.dickeyxxx.com # foo
+  login jeff@foo.com
+  password myapikey
+machine foo.bar.com
+  password foopassword
+  login foo@bar.com
+`
+
+  fs.writeFileSync(f, beforeSave)
+
+  const netrc = new Netrc(f)
+  await netrc.load()
+  delete netrc.machines['api.dickeyxxx.com']
+  await netrc.save()
+
+  const afterSave = `machine foo.bar.com
   password foopassword
   login foo@bar.com\n`
 
   expect(fs.readFileSync(f, 'utf8')).toEqual(afterSave)
+})
+
+test('setting machine to undefined', async () => {
+  const f = `tmp/netrc`
+
+  const beforeSave = `machine api.dickeyxxx.com # foo
+  login jeff@foo.com
+  password myapikey
+machine foo.bar.com
+  password foopassword
+  login foo@bar.com
+`
+
+  fs.writeFileSync(f, beforeSave)
+
+  const netrc = new Netrc(f)
+  await netrc.load()
+  netrc.machines['api.dickeyxxx.com'] = undefined as any
+  await netrc.save()
+
+  const afterSave = `machine foo.bar.com
+  password foopassword
+  login foo@bar.com\n`
+
+  expect(fs.readFileSync(f, 'utf8')).toEqual(afterSave)
+})
+
+test('empty netrc', async () => {
+  const f = `tmp/netrc`
+
+  const beforeSave = ''
+
+  fs.writeFileSync(f, beforeSave)
+
+  const netrc = new Netrc(f)
+  await netrc.load()
+  netrc.machines['api.dickeyxxx.com'] = {login: 'foo', password: 'bar'}
+  netrc.machines['foo.dickeyxxx.com'] = {login: 'foo2', password: 'bar2'}
+  await netrc.save()
+
+  const afterSave = `machine api.dickeyxxx.com
+  login foo
+  password bar
+
+machine foo.dickeyxxx.com
+  login foo2
+  password bar2
+`
+
+  expect(fs.readFileSync(f, 'utf8')).toEqual(afterSave)
+})
+
+test('set existing', async () => {
+  const f = `tmp/netrc`
+
+  const beforeSave = 'machine foo password p login u'
+
+  fs.writeFileSync(f, beforeSave)
+
+  const netrc = new Netrc(f)
+  await netrc.load()
+  netrc.machines['foo'] = {login: 'foo', password: 'bar'}
+  await netrc.save()
+
+  const afterSave = `machine foo
+  login foo
+  password bar
+`
+
+  expect(fs.readFileSync(f, 'utf8')).toEqual(afterSave)
+})
+
+test('set new prop', async () => {
+  const f = `tmp/netrc`
+
+  const beforeSave = 'machine foo password p login u'
+
+  fs.writeFileSync(f, beforeSave)
+
+  const netrc = new Netrc(f)
+  await netrc.load()
+  netrc.machines['foo'].login = 'uu'
+  netrc.machines['foo'].account = 'bar'
+  netrc.machines['foo'].password = undefined
+  expect('foo' in netrc.machines).toEqual(true)
+  expect('bar' in netrc.machines).toEqual(false)
+  delete netrc.machines['bar']
+  await netrc.save()
+
+  const afterSave = `machine foo account bar login uu
+`
+
+  expect(fs.readFileSync(f, 'utf8')).toEqual(afterSave)
+})
+
+test('file not found', async () => {
+  const f = `tmp/netrc`
+  fs.removeSync(f)
+  const netrc = new Netrc(f)
+  await netrc.load()
+  netrc.machines['foo'] = {login: 'u', password: 'p'}
+  await netrc.save()
+  const afterSave = `machine foo\n  login u\n  password p\n`
+  expect(fs.readFileSync(f, 'utf8')).toEqual(afterSave)
+})
+
+test('file not found sync', () => {
+  const f = `tmp/netrc`
+  fs.removeSync(f)
+  const netrc = new Netrc(f)
+  netrc.loadSync()
+  netrc.machines['foo'] = {login: 'u', password: 'p'}
+  netrc.saveSync()
+  const afterSave = `machine foo\n  login u\n  password p\n`
+  expect(fs.readFileSync(f, 'utf8')).toEqual(afterSave)
+})
+
+test('default setting', () => {
+  const f = `tmp/netrc`
+  fs.removeSync(f)
+  const netrc = new Netrc(f)
+  netrc.loadSync()
+  netrc.default = {login: 'u', password: 'p'}
+  netrc.saveSync()
+  const afterSave = `\ndefault\n  login u\n  password p\n`
+  expect(fs.readFileSync(f, 'utf8')).toEqual(afterSave)
+  netrc.default = undefined
+  netrc.saveSync()
+  expect(fs.readFileSync(f, 'utf8')).toEqual(`\n`)
 })

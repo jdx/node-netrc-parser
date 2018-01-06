@@ -1,7 +1,10 @@
-import * as fs from 'graceful-fs'
+import * as fs from 'fs-extra'
 import * as os from 'os'
 import * as path from 'path'
-import lex, {Token} from './lex'
+import * as execa from 'execa'
+
+import lex from './lex'
+import * as Token from './token'
 
 let _debug: any
 function debug(...args: any[]) {
@@ -12,143 +15,13 @@ function debug(...args: any[]) {
   } catch (err) {}
 }
 
-export interface Machine {
-  type: 'machine'
-  machine?: string
-  login?: string
-  account?: string
-  password?: string
-  value?: string
-  _tokens: Token[]
-}
 
-export interface DefaultMachine {
-  type: 'default'
-  machine?: string
-  login?: string
-  account?: string
-  password?: string
-  value?: string
-  _tokens: Token[]
-}
-
-export type Machines = {
-  [host: string]: Machine
-}
-
-function findIndex<T>(arr: T[], fn: (i: T) => boolean): number {
-  for (let i = 0; i < arr.length; i++) {
-    if (fn(arr[i])) return i
-  }
-  return -1
-}
-
-function readFile(file: string): string {
-  function decryptFile(file: string): string {
-    const { spawnSync } = require('child_process')
-    const args = ['--batch', '--quiet', '--decrypt', file]
-    debug('running gpg with args %o', args)
-    const { stdout, status } = spawnSync('gpg', args, { stdio: [0, null, 2], encoding: 'utf8' })
-    if (status !== 0) throw new Error(`gpg exited with code ${status}`)
-    return stdout
-  }
-
-  if (path.extname(file) === '.gpg') return addTrailingNewline(decryptFile(file))
-  else {
-    try {
-      return addTrailingNewline(fs.readFileSync(file, 'utf8'))
-    } catch (err) {
-      if (err.code !== 'ENOENT') throw err
-      return ''
-    }
-  }
-}
-
-function machineProxy(machine: Machine) {
-  const props = () => machine._tokens.filter(t => t.type === 'prop') as PropToken[]
-  const loadProps = () =>
-    props().forEach(prop => {
-      machine[prop.name] = prop.value
-    })
-  loadProps()
-  return new Proxy(machine, {
-    set: (machine, name, value) => {
-      if (name === '_tokens') {
-        machine._tokens = value
-        loadProps()
-        return true
-      }
-      ;(machine as any)[name] = value
-      let prop = props().find(p => p.name === name)
-      if (prop) prop.value = value
-      else {
-        let lastPropIdx = findIndex(machine._tokens, t => t.type === 'prop')
-        let whitespace =
-          lastPropIdx === -1
-            ? ({ type: 'whitespace', content: '\n  ' } as WhitespaceToken)
-            : machine._tokens[lastPropIdx - 1]
-        machine._tokens.splice(lastPropIdx, 0, whitespace) // insert whitespace
-        machine._tokens.splice(lastPropIdx, 0, { type: 'prop', name, value } as PropToken)
-      }
-      return true
-    },
-  })
-}
-
-function machinesProxy(content: (Machine | Token)[]) {
-  function addNewMachine(host: string) {
-    let machine = machineProxy({
-      type: 'machine',
-      value: host,
-      _tokens: [{ type: 'machine', value: host, content: `machine ${host}` }, { type: 'whitespace', content: '\n' }],
-    })
-    content.push(machine)
-    return machine
-  }
-  return new Proxy({} as Machines, {
-    get: (machines, host) => {
-      if (typeof host !== 'string') return machines[host]
-      if (!machines[host]) machines[host] = addNewMachine(host)
-      return machines[host]
-    },
-    set: (machines, host: string, value: Machine) => {
-      if (!machines[host]) machines[host] = addNewMachine(host)
-      machines[host] = machineProxy(value)
-      return true
-    },
-    deleteProperty: (machines, host) => {
-      if (!machines[host]) return false
-      delete machines[host]
-      for (let i = 0; i < content.length; i++) {
-        if (content[i].type === 'machine' && content[i].value === host) {
-          content.splice(i, 1)
-        }
-      }
-      return true
-    },
-  })
-}
-
-function addTrailingNewline(s: string): string {
-  if (s.endsWith('\n')) return s
-  return s + '\n'
-}
-
-function homedir() {
-  return (
-    (os.platform() === 'win32' &&
-      (process.env.HOME ||
-        (process.env.HOMEDRIVE && process.env.HOMEPATH && path.join(process.env.HOMEDRIVE!, process.env.HOMEPATH!)) ||
-        process.env.USERPROFILE)) ||
-    os.homedir() ||
-    os.tmpdir()
-  )
-}
+const stdio = [0, null, 2]
 
 /**
  * parses a netrc file
  */
-export class Netrc {
+export class Netrc extends Token.Base {
   /**
    * generates or parses a netrc file
    * @example
@@ -157,105 +30,173 @@ export class Netrc {
    * netrc.machines['api.heroku.com'].password // get auth token from ~/.netrc
    */
   constructor(file?: string) {
-    if (!file) {
-      file = path.join(homedir(), os.platform() === 'win32' ? '_netrc' : '.netrc')
-      if (fs.existsSync(file + '.gpg')) file += '.gpg'
-    }
-    this._tokens = []
-    this.file = file
-    this.machines = machinesProxy(this._tokens)
-    this._parse()
+    super()
+    this._file = file
   }
 
-  file: string
-  machines: Machines
-  default: Machine | undefined
-  private _tokens: (Token | Machine)[]
+  private _file: string | undefined
+  protected _tokens: Token.Token[]
+  public get file() { return this._file! }
+  public get machines() { return this._machines! }
+  private _machines: Token.Machines
+
+  get default (): Token.IMachine | undefined { return this._tokens.find(t => t.type === 'default') as Token.DefaultMachine }
+  set default (v: Token.IMachine | undefined) {
+    let idx = this._tokens.findIndex(t => t.type === 'default')
+    if (idx !== -1 && !v) this._tokens.splice(idx, 1)
+    else {
+      let newMachine = new Token.DefaultMachine({...v, post: '\n'})
+      if (idx !== -1 && v) this._tokens[idx] = newMachine
+      else if (v) this._tokens.push(newMachine)
+    }
+  }
+
+  async load () {
+    if (!this._file) this._file = await this.defaultFile()
+    this.parse(await this.readFile())
+  }
+
+  loadSync () {
+    if (!this._file) this._file = this.defaultFileSync()
+    this.parse(this.readFileSync())
+  }
 
   /**
    * save the current home netrc with any changes
    * @example
    * const Netrc = require('netrc-parser')
    * const netrc = new Netrc()
+   * await netrc.load()
    * netrc.machines['api.heroku.com'].password = 'newpassword'
    * netrc.save()
    */
   save() {
-    let body = this._tokens
-      .map(t => {
-        switch (t.type) {
-          case 'default':
-          case 'machine':
-            let tokens: Token[] = t._tokens || []
-            return tokens
-              .map(t => {
-                switch (t.type) {
-                  case 'prop':
-                    return `${t.name} ${t.value}`
-                  case 'machine':
-                  case 'default':
-                  case 'comment':
-                  case 'whitespace':
-                    return t.content
-                }
-              })
-              .join('')
-          case 'macdef':
-          case 'comment':
-          case 'whitespace':
-            return t.content
-        }
-      })
-      .join('')
-    this._write(body)
+    return this.write(this.content)
   }
 
-  _write(body: string) {
+  /**
+   * save the current home netrc with any changes
+   * @example
+   * const Netrc = require('netrc-parser')
+   * const netrc = new Netrc()
+   * netrc.loadSync()
+   * netrc.machines['api.heroku.com'].password = 'newpassword'
+   * netrc.saveSync()
+   */
+  saveSync() {
+    this.writeSync(this.content)
+  }
+
+  private get gpgEncryptArgs () {
+    const args = ['-a', '--batch', '--default-recipient-self', '-e']
+    debug('running gpg with args %o', args)
+    return args
+  }
+
+  private async write(body: string) {
     if (this.file.endsWith('.gpg')) {
-      const { spawnSync } = require('child_process')
-      const args = ['-a', '--batch', '--default-recipient-self', '-e']
-      debug('running gpg with args %o', args)
-      const { stdout, status } = spawnSync('gpg', args, {
-        input: body,
-        stdio: [null, 'pipe', 2],
-        encoding: 'utf8',
-      })
+      const { stdout, code } = await execa('gpg', this.gpgEncryptArgs, { input: body, stdio: [null, null, 2] })
+      if (code !== 0) throw new Error(`gpg exited with code ${code}`)
+      body = stdout
+    }
+    await fs.writeFile(this.file, body, { mode: 0o600 })
+  }
+
+  private writeSync(body: string) {
+    if (this.file.endsWith('.gpg')) {
+      const { stdout, status } = execa.sync('gpg', this.gpgEncryptArgs, { input: body, stdio: [null, null, 2] })
       if (status !== 0) throw new Error(`gpg exited with code ${status}`)
       body = stdout
     }
     fs.writeFileSync(this.file, body, { mode: 0o600 })
   }
 
-  private _parse() {
-    let tokens = lex(readFile(this.file))
-    for (let i = 0; i < tokens.length; i++) {
-      let getMachineTokens = () => {
-        let machineTokens = []
-        while (1) {
-          machineTokens.push(tokens[i])
-          let next = tokens[i + 1]
-          if (!next || ['machine', 'default', 'macdef'].includes(next.type) || next.type === 'default') break
-          i++
-        }
-        return machineTokens
-      }
+  private parse (body: string) {
+    const tokens = lex(body)
 
-      switch (tokens[i].type) {
-        case 'macdef':
-          this._tokens.push(...getMachineTokens())
-          break
+    let cur: Token.DefaultMachine | Token.Machine | this = this
+    for (let token of tokens) {
+      switch (token.type) {
         case 'default':
-          this.default = machineProxy({ type: 'default', _tokens: getMachineTokens() })
-          this._tokens.push(this.default)
+          cur = new Token.DefaultMachine(token)
+          this.addToken(cur)
           break
         case 'machine':
-          let host = (tokens[i] as MachineToken).value
-          this.machines[host]._tokens = getMachineTokens()
+          cur = new Token.Machine(token)
+          this.addToken(cur)
+          break
+        case 'newline':
+          cur = this
+          cur.addToken(token)
           break
         default:
-          this._tokens.push(tokens[i])
+          cur.addToken(token)
       }
     }
+    this._machines = Token.machinesProxy(this._tokens)
+  }
+
+  private get gpgDecryptArgs() {
+    const args = ['--batch', '--quiet' , '--decrypt', this.file]
+    debug('running gpg with args %o', args)
+    return args
+  }
+
+  private async readFile(): Promise<string> {
+    const decryptFile = async (): Promise<string> => {
+      const {code, stdout} = await execa('gpg', this.gpgDecryptArgs, {stdio})
+      if (code !== 0) throw new Error(`gpg exited with code ${code}`)
+      return stdout
+    }
+
+    if (path.extname(this.file) === '.gpg') return await decryptFile()
+    else {
+      try {
+        return await fs.readFile(this.file, 'utf8')
+      } catch (err) {
+        if (err.code !== 'ENOENT') throw err
+        return ''
+      }
+    }
+  }
+
+  private readFileSync(): string {
+    const decryptFile = (): string => {
+      const { stdout, status } = execa.sync('gpg', this.gpgDecryptArgs, {stdio})
+      if (status !== 0) throw new Error(`gpg exited with code ${status}`)
+      return stdout
+    }
+
+    if (path.extname(this.file) === '.gpg') return decryptFile()
+    else {
+      try {
+        return fs.readFileSync(this.file, 'utf8')
+      } catch (err) {
+        if (err.code !== 'ENOENT') throw err
+        return ''
+      }
+    }
+  }
+
+  private get homedir() {
+    return (
+      (os.platform() === 'win32' &&
+        (process.env.HOME ||
+          (process.env.HOMEDRIVE && process.env.HOMEPATH && path.join(process.env.HOMEDRIVE!, process.env.HOMEPATH!)) ||
+          process.env.USERPROFILE)) ||
+      os.homedir() ||
+      os.tmpdir()
+    )
+  }
+
+  private defaultFileSync() {
+    let file = path.join(this.homedir, os.platform() === 'win32' ? '_netrc' : '.netrc')
+    return fs.pathExistsSync(file + '.gpg') ? file += '.gpg' : file
+  }
+
+  private async defaultFile() {
+    let file = path.join(this.homedir, os.platform() === 'win32' ? '_netrc' : '.netrc')
+    return await fs.pathExists(file + '.gpg') ? file += '.gpg' : file
   }
 }
 

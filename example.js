@@ -1,5 +1,6 @@
-const Netrc = require('./src/netrc')
-const netrc = new Netrc('./example')
+const {Netrc} = require('.')
+const netrc = new Netrc('./test/fixtures/example')
+netrc.loadSync()
 console.dir(netrc)
 console.dir(netrc.machines)
 console.dir(netrc.machines['api.foo.com'])
