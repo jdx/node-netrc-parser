@@ -15,7 +15,6 @@ function debug(...args: any[]) {
   } catch (err) {}
 }
 
-
 const stdio = [0, null, 2]
 
 /**
@@ -36,27 +35,33 @@ export class Netrc extends Token.Base {
 
   private _file: string | undefined
   protected _tokens: Token.Token[]
-  public get file() { return this._file! }
-  public get machines() { return this._machines! }
+  public get file() {
+    return this._file!
+  }
+  public get machines() {
+    return this._machines!
+  }
   private _machines: Token.Machines
 
-  get default (): Token.IMachine | undefined { return this._tokens.find(t => t.type === 'default') as Token.DefaultMachine }
-  set default (v: Token.IMachine | undefined) {
+  get default(): Token.IMachine | undefined {
+    return this._tokens.find(t => t.type === 'default') as Token.DefaultMachine
+  }
+  set default(v: Token.IMachine | undefined) {
     let idx = this._tokens.findIndex(t => t.type === 'default')
     if (idx !== -1 && !v) this._tokens.splice(idx, 1)
     else {
-      let newMachine = new Token.DefaultMachine({...v, post: '\n'})
+      let newMachine = new Token.DefaultMachine({ ...v, post: '\n' })
       if (idx !== -1 && v) this._tokens[idx] = newMachine
       else if (v) this._tokens.push(newMachine)
     }
   }
 
-  async load () {
+  async load() {
     if (!this._file) this._file = await this.defaultFile()
     this.parse(await this.readFile())
   }
 
-  loadSync () {
+  loadSync() {
     if (!this._file) this._file = this.defaultFileSync()
     this.parse(this.readFileSync())
   }
@@ -87,7 +92,7 @@ export class Netrc extends Token.Base {
     this.writeSync(this.content)
   }
 
-  private get gpgEncryptArgs () {
+  private get gpgEncryptArgs() {
     const args = ['-a', '--batch', '--default-recipient-self', '-e']
     debug('running gpg with args %o', args)
     return args
@@ -111,7 +116,7 @@ export class Netrc extends Token.Base {
     fs.writeFileSync(this.file, body, { mode: 0o600 })
   }
 
-  private parse (body: string) {
+  private parse(body: string) {
     const tokens = lex(body)
 
     let cur: Token.DefaultMachine | Token.Machine | this = this
@@ -137,14 +142,14 @@ export class Netrc extends Token.Base {
   }
 
   private get gpgDecryptArgs() {
-    const args = ['--batch', '--quiet' , '--decrypt', this.file]
+    const args = ['--batch', '--quiet', '--decrypt', this.file]
     debug('running gpg with args %o', args)
     return args
   }
 
   private async readFile(): Promise<string> {
     const decryptFile = async (): Promise<string> => {
-      const {code, stdout} = await execa('gpg', this.gpgDecryptArgs, {stdio})
+      const { code, stdout } = await execa('gpg', this.gpgDecryptArgs, { stdio })
       if (code !== 0) throw new Error(`gpg exited with code ${code}`)
       return stdout
     }
@@ -162,7 +167,7 @@ export class Netrc extends Token.Base {
 
   private readFileSync(): string {
     const decryptFile = (): string => {
-      const { stdout, status } = execa.sync('gpg', this.gpgDecryptArgs, {stdio}) as any
+      const { stdout, status } = execa.sync('gpg', this.gpgDecryptArgs, { stdio }) as any
       if (status !== 0) throw new Error(`gpg exited with code ${status}`)
       return stdout
     }
@@ -191,12 +196,12 @@ export class Netrc extends Token.Base {
 
   private defaultFileSync() {
     let file = path.join(this.homedir, os.platform() === 'win32' ? '_netrc' : '.netrc')
-    return fs.pathExistsSync(file + '.gpg') ? file += '.gpg' : file
+    return fs.pathExistsSync(file + '.gpg') ? (file += '.gpg') : file
   }
 
   private async defaultFile() {
     let file = path.join(this.homedir, os.platform() === 'win32' ? '_netrc' : '.netrc')
-    return await fs.pathExists(file + '.gpg') ? file += '.gpg' : file
+    return (await fs.pathExists(file + '.gpg')) ? (file += '.gpg') : file
   }
 }
 

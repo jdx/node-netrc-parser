@@ -59,13 +59,13 @@ default
 machine ray login demo password mypassword
 `)
   expect(tokens).toEqual([
-    { type: 'comment', content: '\n# I am a comment\n',},
+    { type: 'comment', content: '\n# I am a comment\n' },
     { type: 'machine', _tokens: [], host: 'mail.google.com', pre: '', post: '\n' },
     { type: 'prop', name: 'login', value: 'joe@gmail.com', pre: '  ', post: '\n' },
     { type: 'prop', name: 'account', value: 'gmail', pre: '  ', post: '\n' },
     { type: 'prop', name: 'password', value: 'somethingSecret', pre: '  ', post: '\n' },
-    { type: 'comment', content: '# I am another comment\n'},
-    { type: 'newline', content: '\n'},
+    { type: 'comment', content: '# I am another comment\n' },
+    { type: 'newline', content: '\n' },
     { type: 'default', _tokens: [], pre: '', post: '\n' },
     { type: 'prop', name: 'login', value: 'anonymous', pre: '\t', post: '\n' },
     { type: 'prop', name: 'password', value: 'joe@example.com', pre: '\t', post: '\n' },
@@ -91,15 +91,15 @@ barbaaz
 machine ray login demo password mypassword
 `)
   expect(tokens).toEqual([
-    { type: 'comment', content: '# I am a comment\n',},
+    { type: 'comment', content: '# I am a comment\n' },
     { type: 'machine', _tokens: [], host: 'mail.google.com', pre: '', post: '\n' },
     { type: 'prop', name: 'login', value: 'joe@gmail.com', pre: '  ', post: '\n' },
     { type: 'prop', name: 'account', value: 'gmail', pre: '  ', post: '\n' },
     { type: 'prop', name: 'password', value: 'somethingSecret', pre: '  ', post: '\n' },
-    { type: 'comment', content: '# I am another comment\n'},
-    { type: 'newline', content: '\n'},
-    { type: 'macdef', content: 'macdef\nfoo\nbarbaaz\n'},
-    { type: 'newline', content: '\n'},
+    { type: 'comment', content: '# I am another comment\n' },
+    { type: 'newline', content: '\n' },
+    { type: 'macdef', content: 'macdef\nfoo\nbarbaaz\n' },
+    { type: 'newline', content: '\n' },
     { type: 'machine', _tokens: [], host: 'ray', pre: '', post: '' },
     { type: 'prop', name: 'login', value: 'demo', pre: ' ', post: '' },
     { type: 'prop', name: 'password', value: 'mypassword', pre: ' ', post: '\n' },

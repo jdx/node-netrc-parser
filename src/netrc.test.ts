@@ -1,5 +1,5 @@
 import * as fs from 'fs-extra'
-import {Netrc} from './netrc'
+import { Netrc } from './netrc'
 
 fs.mkdirpSync('tmp')
 
@@ -212,7 +212,7 @@ default
   netrc.machines['mail.google.com'].account = 'justanaccount'
   netrc.machines.ray.login = 'demo2'
   netrc.machines.ray.account = 'newaccount'
-  netrc.machines['new'] = {login: 'myuser', password: 'mypass'}
+  netrc.machines['new'] = { login: 'myuser', password: 'mypass' }
   netrc.saveSync()
 
   expect(fs.readFileSync(f, 'utf8')).toEqual(`# I am a comment
@@ -254,7 +254,7 @@ test('adding a machine should create a new entry', async () => {
 
   const netrc = new Netrc(f)
   await netrc.load()
-  netrc.machines['foo.bar.com'] = {login: 'foo@bar.com', password: 'foopassword'}
+  netrc.machines['foo.bar.com'] = { login: 'foo@bar.com', password: 'foopassword' }
   await netrc.save()
 
   const afterSave = `machine api.dickeyxxx.com # foo
@@ -327,8 +327,8 @@ test('empty netrc', async () => {
 
   const netrc = new Netrc(f)
   await netrc.load()
-  netrc.machines['api.dickeyxxx.com'] = {login: 'foo', password: 'bar'}
-  netrc.machines['foo.dickeyxxx.com'] = {login: 'foo2', password: 'bar2'}
+  netrc.machines['api.dickeyxxx.com'] = { login: 'foo', password: 'bar' }
+  netrc.machines['foo.dickeyxxx.com'] = { login: 'foo2', password: 'bar2' }
   await netrc.save()
 
   const afterSave = `machine api.dickeyxxx.com
@@ -352,7 +352,7 @@ test('set existing', async () => {
 
   const netrc = new Netrc(f)
   await netrc.load()
-  netrc.machines['foo'] = {login: 'foo', password: 'bar'}
+  netrc.machines['foo'] = { login: 'foo', password: 'bar' }
   await netrc.save()
 
   const afterSave = `machine foo
@@ -391,7 +391,7 @@ test('file not found', async () => {
   fs.removeSync(f)
   const netrc = new Netrc(f)
   await netrc.load()
-  netrc.machines['foo'] = {login: 'u', password: 'p'}
+  netrc.machines['foo'] = { login: 'u', password: 'p' }
   await netrc.save()
   const afterSave = `machine foo\n  login u\n  password p\n`
   expect(fs.readFileSync(f, 'utf8')).toEqual(afterSave)
@@ -402,7 +402,7 @@ test('file not found sync', () => {
   fs.removeSync(f)
   const netrc = new Netrc(f)
   netrc.loadSync()
-  netrc.machines['foo'] = {login: 'u', password: 'p'}
+  netrc.machines['foo'] = { login: 'u', password: 'p' }
   netrc.saveSync()
   const afterSave = `machine foo\n  login u\n  password p\n`
   expect(fs.readFileSync(f, 'utf8')).toEqual(afterSave)
@@ -413,7 +413,7 @@ test('default setting', () => {
   fs.removeSync(f)
   const netrc = new Netrc(f)
   netrc.loadSync()
-  netrc.default = {login: 'u', password: 'p'}
+  netrc.default = { login: 'u', password: 'p' }
   netrc.saveSync()
   const afterSave = `\ndefault\n  login u\n  password p\n`
   expect(fs.readFileSync(f, 'utf8')).toEqual(afterSave)

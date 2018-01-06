@@ -1,8 +1,8 @@
-import {inspect} from 'util'
+import { inspect } from 'util'
 
 import * as Token from './token'
 
-const addTrailingNewline = (s: string) => s.endsWith('\n') ? s : `${s}\n`
+const addTrailingNewline = (s: string) => (s.endsWith('\n') ? s : `${s}\n`)
 
 const Lexer = require('lex')
 
@@ -20,7 +20,7 @@ ${body}`)
   })
   lexer.addRule(
     /\s*\n/,
-    function (this: any, content: string) {
+    function(this: any, content: string) {
       this.state = SC.Init
       tokens.push({ type: 'newline', content })
     },
@@ -28,7 +28,7 @@ ${body}`)
   )
   lexer.addRule(
     /\s*(#.*)\n/,
-    function (this: any, content: string) {
+    function(this: any, content: string) {
       tokens.push({ type: 'comment', content })
     },
     [SC.Init, SC.Machine],
@@ -59,7 +59,7 @@ ${body}`)
   lexer.addRule(
     /([ \t]*)([a-zA-Z]+) +(\S+)([ \t]*\n)?/,
     (_: string, pre: string, name: string, value: string, post: string) => {
-      tokens.push(new Token.Prop({pre, post, name: name as any, value }))
+      tokens.push(new Token.Prop({ pre, post, name: name as any, value }))
     },
     [SC.Machine],
   )

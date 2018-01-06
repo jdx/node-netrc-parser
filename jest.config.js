@@ -7,7 +7,7 @@ module.exports = {
   },
   globals: {
     'ts-jest': {
-      skipBabel: true
-    }
-  }
+      skipBabel: true,
+    },
+  },
 }
