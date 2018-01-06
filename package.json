@@ -5,21 +5,22 @@
   "author": "Jeff Dickey (@jdxcode)",
   "bugs": "https://github.com/jdxcode/node-netrc-parser/issues",
   "dependencies": {
+    "graceful-fs": "^4.1.11",
     "lex": "^1.7.9"
   },
   "devDependencies": {
-    "babel-cli": "6.24.1",
-    "babel-eslint": "7.1.1",
-    "babel-plugin-transform-flow-strip-types": "6.22.0",
+    "@heroku-cli/tslint": "^1.1.2",
+    "@types/execa": "^0.8.1",
+    "@types/fs-extra": "^5.0.0",
+    "@types/graceful-fs": "^4.1.2",
+    "@types/jest": "^22.0.1",
     "debug": "^3.1.0",
-    "documentation": "4.0.0-beta.18",
-    "flow-bin": "0.41.0",
-    "flow-copy-source": "1.1.0",
-    "fs-extra": "2.0.0",
-    "jest": "19.0.2",
-    "jest-junit": "1.3.0",
-    "rimraf": "2.6.1",
-    "standard": "9.0.1"
+    "fs-extra": "5.0.0",
+    "jest": "22.0.4",
+    "prettier": "^1.9.2",
+    "ts-jest": "^22.0.1",
+    "tslint": "^5.8.0",
+    "typescript": "^2.6.2"
   },
   "files": [
     "lib"
@@ -32,20 +33,10 @@
   "main": "lib/netrc.js",
   "repository": "jdxcode/node-netrc-parser",
   "scripts": {
-    "build": "babel src -d lib --ignore '*.test.js'",
-    "clean": "rimraf lib",
-    "copy-flow": "flow-copy-source -v -i '**/*.test.js' src lib",
-    "doc": "documentation readme --github -s API src/netrc.js",
-    "prepare": "npm run clean && npm run build && npm run copy-flow",
-    "test": "jest && flow && standard",
-    "version": "npm run doc && git add README.md",
-    "watch": "babel --watch src -d lib --ignore '*.test.js'"
+    "posttest": "prettier -l src/**/*.ts",
+    "prepare": "tsc",
+    "pretest": "tsc",
+    "test": "jest"
   },
-  "standard": {
-    "parser": "babel-eslint",
-    "ignore": [
-      "lib",
-      "flow-typed"
-    ]
-  }
+  "types": "lib/netrc.d.ts"
 }
