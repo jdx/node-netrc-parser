@@ -205,4 +205,4 @@ export class Netrc extends Token.Base {
   }
 }
 
-export default Netrc
+export default new Netrc()

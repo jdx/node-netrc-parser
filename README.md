@@ -12,8 +12,7 @@ parses a netrc file
 **Examples**
 
 ```javascript
-const {Netrc} = require('netrc-parser')
-const netrc = new Netrc()
+const netrc = require('netrc-parser').default
 netrc.loadSync() // or netrc.load() for async
 netrc.machines['api.heroku.com'].password // get auth token from ~/.netrc
 netrc.saveSync() // or netrc.save() for async
