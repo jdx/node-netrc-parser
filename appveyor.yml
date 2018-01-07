@@ -10,8 +10,8 @@ cache:
   - node_modules -> package.json
 install:
   - ps: Install-Product node $env:nodejs_version x64
-  - ps: choco install -y gpg4win-vanilla
-  - gpg --import test/fixtures/gpg.key
+  # - ps: choco install -y gpg4win-vanilla
+  # - gpg --import test/fixtures/gpg.key
   - yarn
 test_script:
   - yarn test --coverage
