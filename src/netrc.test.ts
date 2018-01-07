@@ -5,6 +5,8 @@ fs.mkdirpSync('tmp')
 
 process.env.NETRC_PARSER_DEBUG = '1'
 
+const skipOnWindows = process.platform === 'win32' ? test.skip : test
+
 test('can read system netrc', () => {
   let netrc = new Netrc()
   netrc.loadSync()
@@ -128,7 +130,7 @@ pQgBLBordnqQajWt1ao+8AZiAsOooF0wJqm/mH1Og5/ADuhvZEQ=
 =PGaL
 -----END PGP MESSAGE-----`
 
-test('good.gpg sync', () => {
+skipOnWindows('good.gpg sync', () => {
   const f = `tmp/netrc.gpg`
   fs.writeFileSync(f, gpgEncrypted)
   const netrc = new Netrc(f)
@@ -142,7 +144,7 @@ test('good.gpg sync', () => {
   expect(fs.readFileSync(f, { encoding: 'utf8' })).toContain('-----BEGIN PGP MESSAGE-----')
 })
 
-test('good.gpg', async () => {
+skipOnWindows('good.gpg', async () => {
   const f = `tmp/netrc.gpg`
   await fs.writeFile(f, gpgEncrypted)
   const netrc = new Netrc(f)
