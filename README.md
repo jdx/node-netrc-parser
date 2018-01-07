@@ -1,5 +1,7 @@
 # netrc-parser
 
+[![Greenkeeper badge](https://badges.greenkeeper.io/jdxcode/node-netrc-parser.svg)](https://greenkeeper.io/)
+
 [![CircleCI](https://circleci.com/gh/jdxcode/node-netrc-parser/tree/master.svg?style=svg)](https://circleci.com/gh/jdxcode/node-netrc-parser/tree/master)
 [![codecov](https://codecov.io/gh/jdxcode/node-netrc-parser/branch/master/graph/badge.svg)](https://codecov.io/gh/jdxcode/node-netrc-parser)
 
