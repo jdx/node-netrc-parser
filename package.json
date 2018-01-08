@@ -5,6 +5,7 @@
   "author": "Jeff Dickey (@jdxcode)",
   "bugs": "https://github.com/jdxcode/node-netrc-parser/issues",
   "dependencies": {
+    "execa": "^0.8.0",
     "graceful-fs": "^4.1.11",
     "lex": "^1.7.9"
   },
