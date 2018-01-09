@@ -16,7 +16,7 @@
     "@types/graceful-fs": "^4.1.2",
     "@types/jest": "^22.0.1",
     "debug": "^3.1.0",
-    "fs-extra": "5.0.0",
+    "fs-extra": "^5.0.0",
     "jest": "22.0.4",
     "prettier": "^1.9.2",
     "ts-jest": "^22.0.1",
