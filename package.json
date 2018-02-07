@@ -5,23 +5,20 @@
   "author": "Jeff Dickey (@jdxcode)",
   "bugs": "https://github.com/jdxcode/node-netrc-parser/issues",
   "dependencies": {
-    "execa": "^0.8.0",
-    "fs-extra": "^5.0.0",
-    "graceful-fs": "^4.1.11",
+    "execa": "^0.9.0",
     "lex": "^1.7.9"
   },
   "devDependencies": {
-    "@heroku-cli/tslint": "^1.1.2",
+    "@heroku-cli/tslint": "^1.1.4",
     "@types/execa": "^0.8.1",
     "@types/fs-extra": "^5.0.0",
     "@types/graceful-fs": "^4.1.2",
-    "@types/jest": "^22.0.1",
+    "@types/jest": "^22.1.1",
     "debug": "^3.1.0",
-    "jest": "22.0.4",
-    "prettier": "^1.9.2",
-    "ts-jest": "^22.0.1",
-    "tslint": "^5.8.0",
-    "typescript": "^2.6.2"
+    "jest": "22.1.4",
+    "ts-jest": "^22.0.3",
+    "tslint": "^5.9.1",
+    "typescript": "^2.7.1"
   },
   "files": [
     "lib"
@@ -34,7 +31,6 @@
   "main": "lib/netrc.js",
   "repository": "jdxcode/node-netrc-parser",
   "scripts": {
-    "posttest": "prettier -l src/**/*.ts",
     "prepare": "tsc",
     "pretest": "tsc",
     "test": "jest"

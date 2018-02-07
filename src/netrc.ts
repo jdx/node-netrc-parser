@@ -1,9 +1,9 @@
-import * as fs from 'fs-extra'
+import * as fs from 'fs'
 import * as os from 'os'
 import * as path from 'path'
-import * as execa from 'execa'
+import * as Execa from 'execa'
 
-import lex from './lex'
+import Lex from './lex'
 import * as Token from './token'
 
 let _debug: any
@@ -34,14 +34,14 @@ export class Netrc extends Token.Base {
   }
 
   private _file: string | undefined
-  protected _tokens: Token.Token[]
+  protected _tokens!: Token.Token[]
   public get file() {
     return this._file!
   }
   public get machines() {
     return this._machines!
   }
-  private _machines: Token.Machines
+  private _machines!: Token.Machines
 
   get default(): Token.IMachine | undefined {
     return this._tokens.find(t => t.type === 'default') as Token.DefaultMachine
@@ -62,7 +62,7 @@ export class Netrc extends Token.Base {
   }
 
   loadSync() {
-    if (!this._file) this._file = this.defaultFileSync()
+    if (!this._file) this._file = this.defaultFile()
     this.parse(this.readFileSync())
   }
 
@@ -100,23 +100,28 @@ export class Netrc extends Token.Base {
 
   private async write(body: string) {
     if (this.file.endsWith('.gpg')) {
+      const execa: typeof Execa = require('execa')
       const { stdout, code } = await execa('gpg', this.gpgEncryptArgs, { input: body, stdio: [null, null, 2] })
-      if (code !== 0) throw new Error(`gpg exited with code ${code}`)
+      if (code) throw new Error(`gpg exited with code ${code}`)
       body = stdout
     }
-    await fs.writeFile(this.file, body, { mode: 0o600 })
+    return new Promise((resolve, reject) => {
+      fs.writeFile(this.file, body, { mode: 0o600 }, err => (err ? reject(err) : resolve()))
+    })
   }
 
   private writeSync(body: string) {
     if (this.file.endsWith('.gpg')) {
-      const { stdout, status } = execa.sync('gpg', this.gpgEncryptArgs, { input: body, stdio: [null, null, 2] }) as any
-      if (status !== 0) throw new Error(`gpg exited with code ${status}`)
+      const execa: typeof Execa = require('execa')
+      const { stdout, code } = execa.sync('gpg', this.gpgEncryptArgs, { input: body, stdio: [null, null, 2] }) as any
+      if (code) throw new Error(`gpg exited with code ${status}`)
       body = stdout
     }
     fs.writeFileSync(this.file, body, { mode: 0o600 })
   }
 
   private parse(body: string) {
+    let lex: typeof Lex = require('./lex').default
     const tokens = lex(body)
 
     let cur: Token.DefaultMachine | Token.Machine | this = this
@@ -149,6 +154,7 @@ export class Netrc extends Token.Base {
 
   private async readFile(): Promise<string> {
     const decryptFile = async (): Promise<string> => {
+      const execa: typeof Execa = require('execa')
       const { code, stdout } = await execa('gpg', this.gpgDecryptArgs, { stdio })
       if (code !== 0) throw new Error(`gpg exited with code ${code}`)
       return stdout
@@ -156,19 +162,20 @@ export class Netrc extends Token.Base {
 
     if (path.extname(this.file) === '.gpg') return await decryptFile()
     else {
-      try {
-        return await fs.readFile(this.file, 'utf8')
-      } catch (err) {
-        if (err.code !== 'ENOENT') throw err
-        return ''
-      }
+      return new Promise<string>((resolve, reject) => {
+        fs.readFile(this.file, { encoding: 'utf8' }, (err, data) => {
+          if (err && err.code !== 'ENOENT') reject(err)
+          resolve(data || '')
+        })
+      })
     }
   }
 
   private readFileSync(): string {
     const decryptFile = (): string => {
+      const execa: typeof Execa = require('execa')
       const { stdout, status } = execa.sync('gpg', this.gpgDecryptArgs, { stdio }) as any
-      if (status !== 0) throw new Error(`gpg exited with code ${status}`)
+      if (status) throw new Error(`gpg exited with code ${status}`)
       return stdout
     }
 
@@ -194,14 +201,9 @@ export class Netrc extends Token.Base {
     )
   }
 
-  private defaultFileSync() {
+  private defaultFile() {
     let file = path.join(this.homedir, os.platform() === 'win32' ? '_netrc' : '.netrc')
-    return fs.pathExistsSync(file + '.gpg') ? (file += '.gpg') : file
-  }
-
-  private async defaultFile() {
-    let file = path.join(this.homedir, os.platform() === 'win32' ? '_netrc' : '.netrc')
-    return (await fs.pathExists(file + '.gpg')) ? (file += '.gpg') : file
+    return fs.existsSync(file + '.gpg') ? (file += '.gpg') : file
   }
 }
 
