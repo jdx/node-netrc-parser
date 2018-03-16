@@ -63,7 +63,9 @@ ${body}`)
     },
     [SC.Machine],
   )
-
-  lexer.setInput(body).lex()
+  let bodyLines = body.match(/(.+)\n/g) || [body]
+  for (let line of bodyLines) {
+    lexer.setInput(line).lex()
+  }
   return tokens
 }
