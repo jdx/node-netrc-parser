@@ -5,12 +5,12 @@
   "author": "Jeff Dickey (@jdxcode)",
   "bugs": "https://github.com/jdxcode/node-netrc-parser/issues",
   "dependencies": {
-    "execa": "^0.9.0",
+    "execa": "^0.10.0",
     "lex": "^1.7.9"
   },
   "devDependencies": {
     "@heroku-cli/tslint": "^1.1.4",
-    "@types/execa": "^0.8.1",
+    "@types/execa": "^0.9.0",
     "@types/fs-extra": "^5.0.0",
     "@types/graceful-fs": "^4.1.2",
     "@types/jest": "^22.1.1",
