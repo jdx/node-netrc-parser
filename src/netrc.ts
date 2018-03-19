@@ -121,7 +121,7 @@ export class Netrc extends Token.Base {
   }
 
   private parse(body: string) {
-    // prune the .netrc file if it is only a bunch of newlines
+    // prune the .netrc file if it is only whitespace
     if (body.trim() === '') body = ''
     let lex: typeof Lex = require('./lex').default
     const tokens = lex(body)
