@@ -121,13 +121,9 @@ export class Netrc extends Token.Base {
   }
 
   private parse(body: string) {
+    if (body.trim() === '') body = ''
     let lex: typeof Lex = require('./lex').default
-    let bodyLines = body.split("\n")
-    let slimBody = []
-    for (let line of bodyLines) {
-      if (line.length > 0) slimBody.push(line)
-    }
-    const tokens = lex(slimBody.join("\n"))
+    const tokens = lex(body)
 
     let cur: Token.DefaultMachine | Token.Machine | this = this
     for (let token of tokens) {
