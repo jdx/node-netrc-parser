@@ -496,4 +496,12 @@ machine b
     const afterSave = 'machine foo\n  login u\n  password p\n'
     expect(fs.readFileSync(f, 'utf8')).to.equal(afterSave)
   })
+
+  it('extra code coverage checks', () => {
+    const netrc = new Netrc()
+    netrc.loadSync()
+    expect(1 in netrc.machines).to.equal(false)
+    netrc.machines.a = {login: 'foo'}
+    expect(1 in netrc.machines.a).to.equal(false)
+  })
 })
