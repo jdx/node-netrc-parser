@@ -5,6 +5,9 @@ jobs:
     docker:
       - image: node:latest
     working_directory: ~/cli
+    environment:
+      NYC: "yarn exec nyc -- --nycrc-path node_modules/@oclif/nyc-config/.nycrc"
+      MOCHA_FILE: "reports/mocha.xml"
     steps:
       - checkout
       - restore_cache:
@@ -14,8 +17,11 @@ jobs:
             - v0-yarn-{{ .Environment.CIRCLE_JOB }}-master
       - run: gpg --import test/fixtures/gpg.key
       - run: yarn
-      - run: yarn test --coverage
-      - run: curl -s https://codecov.io/bash | bash
+      - run: |
+          mkdir -p reports
+          $NYC yarn test --reporter mocha-junit-reporter
+          $NYC report --reporter text-lcov > coverage.lcov
+          curl -s https://codecov.io/bash | bash
       - save_cache:
           key: v0-yarn-{{ .Environment.CIRCLE_JOB }}-{{ .Branch }}-{{checksum "yarn.lock"}}
           paths:
