@@ -8,7 +8,6 @@
 [![npm](https://img.shields.io/npm/dw/netrc-parser.svg)](https://npmjs.org/package/netrc-parser)
 [![npm](https://img.shields.io/npm/l/netrc-parser.svg)](https://github.com/jdxcode/node-netrc-parser/blob/master/package.json)
 [![David](https://img.shields.io/david/jdxcode/node-netrc-parser.svg)](https://david-dm.org/jdxcode/node-netrc-parser)
-[![code style: prettier](https://img.shields.io/badge/code_style-prettier-ff69b4.svg?style=flat-square)](https://github.com/prettier/prettier)
 
 # API
 
