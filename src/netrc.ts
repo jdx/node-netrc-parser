@@ -143,4 +143,4 @@ export class Netrc {
   }
 }
 
-export default Netrc
+export default new Netrc()
