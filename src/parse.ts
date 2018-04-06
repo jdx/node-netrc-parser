@@ -120,13 +120,14 @@ export function parse(body: string): Machines {
     } else { // multiline machine
       while (lines.length) {
         const line = lines.shift()!
-        const match = line.match(/^\s+([\S]+)\s+([\S]+)(\s+#.*)?$/)
+        const match = line.match(/^(\s+)([\S]+)\s+([\S]+)(\s+#.*)?$/)
         if (!match) {
           lines.unshift(line)
           break
         }
-        const [, key, value, comment] = match
+        const [, ws, key, value, comment] = match
         machine.props[key] = {value, comment}
+        machine.internalWhitespace = `\n${ws}`
       }
     }
   }

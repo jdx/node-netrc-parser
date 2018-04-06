@@ -279,8 +279,8 @@ machine foo.bar.com
   login jeff@foo.com
   password myapikey
 machine b
-  login jeff@bar.com
-  password myapikey2`
+\tlogin jeff@bar.com
+\tpassword myapikey2`
 
     fs.writeFileSync(f, beforeSave)
 
@@ -294,8 +294,8 @@ machine b
   login foo@bar.com
   password foopassword
 machine b
-  login foobar
-  password myapikey2\n`
+\tlogin foobar
+\tpassword myapikey2\n`
 
     expect(fs.readFileSync(f, 'utf8')).to.equal(afterSave)
 })
@@ -365,12 +365,8 @@ machine foo.bar.com
     netrc.machines['foo.dickeyxxx.com'] = {login: 'foo2', password: 'bar2'}
     await netrc.save()
 
-    const afterSave = `machine api.dickeyxxx.com
-  login foo
-  password bar
-machine foo.dickeyxxx.com
-  login foo2
-  password bar2
+    const afterSave = `machine api.dickeyxxx.com login foo password bar
+machine foo.dickeyxxx.com login foo2 password bar2
 `
 
     expect(fs.readFileSync(f, 'utf8')).to.equal(afterSave)
@@ -390,12 +386,8 @@ machine foo.dickeyxxx.com
     await netrc.save()
 
     const afterSave = `foobar
-machine api.dickeyxxx.com
-  login foo
-  password bar
-machine foo.dickeyxxx.com
-  login foo2
-  password bar2
+machine api.dickeyxxx.com login foo password bar
+machine foo.dickeyxxx.com login foo2 password bar2
 `
 
     expect(fs.readFileSync(f, 'utf8')).to.equal(afterSave)
@@ -511,7 +503,7 @@ machine foo password uu
     await netrc.load()
     netrc.machines.foo = {login: 'u', password: 'p'}
     await netrc.save()
-    const afterSave = 'machine foo\n  login u\n  password p\n'
+    const afterSave = 'machine foo login u password p\n'
     expect(fs.readFileSync(f, 'utf8')).to.equal(afterSave)
   })
 
@@ -522,7 +514,7 @@ machine foo password uu
     netrc.loadSync()
     netrc.machines.foo = {login: 'u', password: 'p'}
     netrc.saveSync()
-    const afterSave = 'machine foo\n  login u\n  password p\n'
+    const afterSave = 'machine foo login u password p\n'
     expect(fs.readFileSync(f, 'utf8')).to.equal(afterSave)
   })
 
