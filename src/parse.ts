@@ -41,7 +41,12 @@ function proxify(tokens: Token[]): Machines {
       return true
     },
   })
-  const machines = tokens.filter((m): m is MachineToken => m.type === 'machine').map(proxifyProps)
+  const machineTokens = tokens.filter((m): m is MachineToken => m.type === 'machine')
+  const machines = machineTokens.map(proxifyProps)
+  const getWhitespace = () => {
+    if (!machineTokens.length) return '\n  '
+    return machineTokens[machineTokens.length - 1].internalWhitespace
+  }
   return new Proxy({} as Machines, {
     get(base, host: string) {
       if (host === '_tokens') return tokens
@@ -58,7 +63,7 @@ function proxify(tokens: Token[]): Machines {
       }
       let machine = machines.find(m => m.host === host)
       if (!machine) {
-        const token: MachineToken = {type: 'machine', host, internalWhitespace: '\n  ', props: {}}
+        const token: MachineToken = {type: 'machine', host, internalWhitespace: getWhitespace(), props: {}}
         tokens.push(token)
         machine = proxifyProps(token)
         machines.push(machine)

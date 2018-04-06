@@ -221,11 +221,8 @@ machine weirdlogin login uname password pass #pass
 default
   login anonymous
   password joe@example.com
-machine new
-  login myuser
-  password mypass
-machine anothernew
-  login myuser
+machine new login myuser password mypass
+machine anothernew login myuser
 `)
 })
 
@@ -470,6 +467,38 @@ machine b
     await netrc.save()
 
     const afterSave = `machine foo login uu account bar
+`
+
+    expect(fs.readFileSync(f, 'utf8')).to.equal(afterSave)
+  })
+
+  it('only login', async () => {
+    const f = 'tmp/netrc'
+    const beforeSave = 'machine u login foo password pass'
+    fs.writeFileSync(f, beforeSave)
+    const netrc = new Netrc(f)
+    await netrc.load()
+    netrc.machines.foo = {login: 'uu'}
+    netrc.saveSync()
+
+    const afterSave = `machine u login foo password pass
+machine foo login uu
+`
+
+    expect(fs.readFileSync(f, 'utf8')).to.equal(afterSave)
+  })
+
+  it('only password', async () => {
+    const f = 'tmp/netrc'
+    const beforeSave = 'machine u login foo password pass'
+    fs.writeFileSync(f, beforeSave)
+    const netrc = new Netrc(f)
+    await netrc.load()
+    netrc.machines.foo = {password: 'uu'}
+    netrc.saveSync()
+
+    const afterSave = `machine u login foo password pass
+machine foo password uu
 `
 
     expect(fs.readFileSync(f, 'utf8')).to.equal(afterSave)
