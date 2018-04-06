@@ -500,10 +500,12 @@ machine b
   it('extra code coverage checks', () => {
     const netrc = new Netrc()
     netrc.loadSync()
-    expect(1 in netrc.machines).to.equal(false)
+    expect(Symbol() in netrc.machines).to.equal(false)
     netrc.machines.a = {login: 'foo'}
-    expect(1 in netrc.machines.a).to.equal(false)
+    expect(Symbol() in netrc.machines.a).to.equal(false)
     expect(netrc.machines.a.lwljlkwejf).to.equal(undefined)
+    expect(netrc.machines.a[Symbol()]).to.equal(undefined)
+    expect(netrc.machines[Symbol()]).to.equal(undefined)
     netrc.machines.b = undefined as any
   })
 })
