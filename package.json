@@ -36,7 +36,7 @@
   "repository": "jdxcode/node-netrc-parser",
   "scripts": {
     "posttest": "tsc -p test --noEmit && tslint -p test -t stylish",
-    "prepare": "tsc",
+    "prepare": "rm -rf lib && tsc",
     "test": "mocha --forbid-only \"test/**/*.test.ts\""
   },
   "types": "lib/netrc.d.ts"
