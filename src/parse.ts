@@ -44,7 +44,7 @@ function proxify(tokens: Token[]): Machines {
   const machineTokens = tokens.filter((m): m is MachineToken => m.type === 'machine')
   const machines = machineTokens.map(proxifyProps)
   const getWhitespace = () => {
-    if (!machineTokens.length) return '\n  '
+    if (!machineTokens.length) return ' '
     return machineTokens[machineTokens.length - 1].internalWhitespace
   }
   return new Proxy({} as Machines, {
