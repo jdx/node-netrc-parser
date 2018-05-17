@@ -60,52 +60,60 @@ export class Netrc {
   }
 
   async load() {
-    debug('load', this.file)
-    const decryptFile = async (): Promise<string> => {
-      const execa: typeof Execa = require('execa')
-      const {code, stdout} = await execa('gpg', this.gpgDecryptArgs, {stdio: [0, null, 2]})
-      if (code !== 0) throw new Error(`gpg exited with code ${code}`)
-      return stdout
-    }
+    try {
+      debug('load', this.file)
+      const decryptFile = async (): Promise<string> => {
+        const execa: typeof Execa = require('execa')
+        const {code, stdout} = await execa('gpg', this.gpgDecryptArgs, {stdio: [0, null, 2]})
+        if (code !== 0) throw new Error(`gpg exited with code ${code}`)
+        return stdout
+      }
 
-    let body = ''
-    if (path.extname(this.file) === '.gpg') {
-      body = await decryptFile()
-    } else {
-      body = await new Promise<string>((resolve, reject) => {
-        fs.readFile(this.file, {encoding: 'utf8'}, (err, data) => {
-          if (err && err.code !== 'ENOENT') reject(err)
-          debug('ENOENT')
-          resolve(data || '')
+      let body = ''
+      if (path.extname(this.file) === '.gpg') {
+        body = await decryptFile()
+      } else {
+        body = await new Promise<string>((resolve, reject) => {
+          fs.readFile(this.file, {encoding: 'utf8'}, (err, data) => {
+            if (err && err.code !== 'ENOENT') reject(err)
+            debug('ENOENT')
+            resolve(data || '')
+          })
         })
-      })
+      }
+      this.machines = parse(body)
+      debug('machines: %o', Object.keys(this.machines))
+    } catch (err) {
+      return this.throw(err)
     }
-    this.machines = parse(body)
-    debug('machines: %o', Object.keys(this.machines))
   }
 
   loadSync() {
-    debug('loadSync', this.file)
-    const decryptFile = (): string => {
-      const execa: typeof Execa = require('execa')
-      const {stdout, status} = execa.sync('gpg', this.gpgDecryptArgs, {stdio: [0, null, 2]}) as any
-      if (status) throw new Error(`gpg exited with code ${status}`)
-      return stdout
-    }
-
-    let body = ''
-    if (path.extname(this.file) === '.gpg') {
-      body = decryptFile()
-    } else {
-      try {
-        body = fs.readFileSync(this.file, 'utf8')
-      } catch (err) {
-        if (err.code !== 'ENOENT') throw err
+    try {
+      debug('loadSync', this.file)
+      const decryptFile = (): string => {
+        const execa: typeof Execa = require('execa')
+        const {stdout, status} = execa.sync('gpg', this.gpgDecryptArgs, {stdio: [0, null, 2]}) as any
+        if (status) throw new Error(`gpg exited with code ${status}`)
+        return stdout
       }
-    }
 
-    this.machines = parse(body)
-    debug('machines: %o', Object.keys(this.machines))
+      let body = ''
+      if (path.extname(this.file) === '.gpg') {
+        body = decryptFile()
+      } else {
+        try {
+          body = fs.readFileSync(this.file, 'utf8')
+        } catch (err) {
+          if (err.code !== 'ENOENT') throw err
+        }
+      }
+
+      this.machines = parse(body)
+      debug('machines: %o', Object.keys(this.machines))
+    } catch (err) {
+      return this.throw(err)
+    }
   }
 
   async save() {
@@ -187,6 +195,13 @@ export class Netrc {
     const args = ['-a', '--batch', '--default-recipient-self', '-e']
     debug('running gpg with args %o', args)
     return args
+  }
+
+  private throw(err: Error & {detail: string}): never {
+    if (err.detail) err.detail += '\n'
+    else err.detail = ''
+    err.detail += `Error occurred during reading netrc file: ${this.file}`
+    throw err
   }
 }
 
