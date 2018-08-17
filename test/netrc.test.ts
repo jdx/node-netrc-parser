@@ -525,8 +525,8 @@ machine foo password uu
     netrc.machines.a = {login: 'foo'}
     expect(Symbol() in netrc.machines.a).to.equal(false)
     expect(netrc.machines.a.lwljlkwejf).to.equal(undefined)
-    expect(netrc.machines.a[Symbol()]).to.equal(undefined)
-    expect(netrc.machines[Symbol()]).to.equal(undefined)
+    expect(netrc.machines.a[Symbol() as any]).to.equal(undefined)
+    expect(netrc.machines[Symbol() as any]).to.equal(undefined)
     netrc.machines.b = undefined as any
   })
 })
