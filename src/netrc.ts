@@ -181,7 +181,7 @@ export class Netrc {
           process.env.USERPROFILE)) ||
       os.homedir() ||
       os.tmpdir()
-    let file = path.join(home, os.platform() === 'win32' ? '_netrc' : '.netrc')
+    let file = process.env.NETRC || path.join(home, os.platform() === 'win32' ? '_netrc' : '.netrc')
     return fs.existsSync(file + '.gpg') ? (file += '.gpg') : file
   }
 

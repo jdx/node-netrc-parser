@@ -1,5 +1,6 @@
 import {expect} from 'chai'
 import * as fs from 'fs-extra'
+import * as path from 'path'
 
 import {Netrc} from '../src/netrc'
 
@@ -41,6 +42,21 @@ machine ray login demo password mypassword`,
 
     expect(netrc.machines.ray.login).to.equal('demo')
     expect(netrc.machines.ray.password).to.equal('mypassword')
+  })
+
+  it('can read netrc via NETRC env var', async () => {
+    const originalNetrcEnv = process.env.NETRC
+    process.env.NETRC = path.resolve(__dirname, '../tmp/.netrc')
+    let netrc = new Netrc()
+    await netrc.load()
+
+    expect(netrc.machines['mail.google.com'].login).to.equal('joe@gmail.com')
+    expect(netrc.machines['mail.google.com'].account).to.equal('gmail')
+    expect(netrc.machines['mail.google.com'].password).to.equal('somethingSecret')
+
+    expect(netrc.machines.ray.login).to.equal('demo')
+    expect(netrc.machines.ray.password).to.equal('mypassword')
+    process.env.NETRC = originalNetrcEnv
   })
 
   it('bad default order', () => {
